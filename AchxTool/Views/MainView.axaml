@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             xmlns:views="clr-namespace:AchxTool.Views"
+             xmlns:achxTool="clr-namespace:AchxTool"
+             xmlns:converters="clr-namespace:AchxTool.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AchxTool.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <!--
+    This only sets the DataContext for the previewer in an IDE.
+    The actual setting of the DataContext is done in the code-behind with an overloaded constructor.
+    -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+    <UserControl.Resources>
+        <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
+    </UserControl.Resources>
+<Grid RowDefinitions="Auto,*">
+    <Menu Grid.Row="0" Background="Green" Padding="0,2">
+        <MenuItem Header="hi">
+            <MenuItem Header="hey"></MenuItem>
+        </MenuItem>
+    </Menu>
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+        <Grid.Styles>
+            <Styles>
+                <Style Selector="GridSplitter">
+    <Setter Property="Width" Value="4"></Setter>
+                </Style>
+
+                <Style Selector="TreeView">
+                    <Style.Resources>
+                        <views:NodeTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
+                    </Style.Resources>
+                    <Setter Property="(Interaction.Behaviors)">
+                        <BehaviorCollectionTemplate>
+                            <BehaviorCollection>
+                                <ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+                            </BehaviorCollection>
+                        </BehaviorCollectionTemplate>
+                    </Setter>
+                </Style>
+            </Styles>
+            
+        </Grid.Styles>
+        <TreeView x:Name="MainTreeView" Grid.Column="0" ItemsSource="{Binding Nodes}" SelectionMode="Multiple" SelectedItem="{Binding SelectedNode}" BorderThickness="0">
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="True"></Setter>
+                    <Setter Property="(Interaction.Behaviors)">
+                        <BehaviorCollectionTemplate>
+                            <BehaviorCollection>
+                                <ContextDragBehavior Handler="{Binding DragHandler}"/>
+                            </BehaviorCollection>
+                        </BehaviorCollectionTemplate>
+                    </Setter>
+                </Style>
+            </TreeView.Styles>
+            <TreeView.DataTemplates>
+                <TreeDataTemplate DataType="{x:Type vm:AnimationChainViewModel}" ItemsSource="{Binding Frames}">
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Animation">
+                                <!-- Bind to the Name property -->
+                                <Binding Path="Name" />
+
+                                <!-- Bind to the current item -->
+                                <Binding RelativeSource="{RelativeSource Self}" Path="DataContext" />
+
+                                <!-- Bind to the parent collection -->
+                                <Binding RelativeSource="{RelativeSource AncestorType=TreeView}"
+                                         Path="Items" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                        <TextBlock.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuItem Header="Add Frame" Command="{Binding AddFrameCommand }"></MenuItem>
+                            </MenuFlyout>
+                        </TextBlock.ContextFlyout>
+                    </TextBlock>
+                </TreeDataTemplate>
+                <TreeDataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">
+                                <!-- Bind to the Name property -->
+                                <Binding Path="Name" />
+
+                                <!-- Bind to the current item -->
+                                <Binding RelativeSource="{RelativeSource Self}" Path="DataContext" />
+
+                                <!-- Bind to the parent collection -->
+                                <Binding RelativeSource="{RelativeSource AncestorType=TreeView}"
+                                         Path="Items" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </TreeDataTemplate>
+            </TreeView.DataTemplates>
+        </TreeView>
+        <GridSplitter Grid.Column="1"/>
+        <NumericUpDown Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center"></NumericUpDown>
+        <GridSplitter Grid.Column="3"/>
+        <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}"/>
+    </Grid>
+</Grid>
+
+
+</UserControl>
