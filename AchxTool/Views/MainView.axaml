@@ -103,10 +103,17 @@
         </TreeView.DataTemplates>
       </TreeView>
       <GridSplitter Grid.Column="1"/>
-      <ItemsControl Grid.Column="2" DataContext="{Binding CanvasViewModel}" ItemsSource="{Binding Items}">
+      <ScrollViewer Grid.Column="2">
+<ZoomBorder  Stretch="None" ZoomSpeed="1.2"
+             Background="SlateBlue" ClipToBounds="True" Focusable="True"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+<ItemsControl DataContext="{Binding CanvasViewModel}" ItemsSource="{Binding Items}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <Canvas Background="MediumPurple"/>
+              <Canvas Background="MediumPurple" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Width="0" Height="0" RenderTransformOrigin="-1 0">
+                  
+              </Canvas>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
           <ItemsControl.Styles>
@@ -114,17 +121,33 @@
                 <Setter Property="Canvas.Left" Value="{Binding X}"></Setter>
                   <Setter Property="Canvas.Top" Value="{Binding Y}"></Setter>
               </Style>
+              <Style Selector="views|FrameBoxView">
+                  <Setter Property="BorderBrush" Value="Black"></Setter>
+              </Style>
+              <Style Selector="views|FrameBoxView.IsSelected">
+                  <Setter Property="BorderBrush" Value="Blue"></Setter>
+              </Style>
+              <Style Selector="views|FrameBoxView:pointerover">
+                  <Setter Property="BorderBrush" Value="Red"></Setter>
+              </Style>
           </ItemsControl.Styles>
           <ItemsControl.DataTemplates>
               <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}" >
-                <views:FrameBoxView BorderBrush="Black" BorderThickness="2" Background="LightBlue"
-                                    Width="{Binding Width}" Height="{Binding Height}"
-                                    X="{Binding X}"
-                                    Y="{Binding Y}"
-                                    />
+                  <views:FrameBoxView BorderThickness="2"
+                                      Background="Transparent"
+                                      Classes.IsSelected="{Binding IsSelected}"
+                                      IsSelected="{Binding IsSelected}"
+                                      Width="{Binding Width}" Height="{Binding Height}"
+                                      X="{Binding X}"
+                                      Y="{Binding Y}"
+                                    >
+                  </views:FrameBoxView>
               </DataTemplate>
           </ItemsControl.DataTemplates>
       </ItemsControl>
+</ZoomBorder>
+      </ScrollViewer>
+      
       <GridSplitter Grid.Column="3"/>
       <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}"/>
     </Grid>

@@ -18,6 +18,23 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private AchxNodeViewModel? _selectedNode;
 
+    partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
+    {
+        foreach (var frame in Nodes.SelectMany(x =>
+                 {
+                     List<AchxNodeViewModel> result = [x, ..x.Frames];
+                     return result;
+                 }))
+        {
+            frame.IsSelected = false;
+        }
+
+        if (value is {IsSelected:false})
+        {
+            value.IsSelected = true;
+        }
+    }
+
     [RelayCommand]
     public void Increment() => Counter++;
 
@@ -47,6 +64,13 @@ public partial class MainViewModel : ObservableObject
             frame.Width = 50;
             frame.Height = 50;
             CanvasViewModel.Items.Add(frame);
+            frame.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(AchxNodeViewModel.IsSelected) && sender is AchxNodeViewModel {IsSelected: true} node)
+                {
+                    SelectedNode = node;
+                }
+            };
         }
         
     }
