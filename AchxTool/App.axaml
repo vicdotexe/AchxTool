@@ -4,67 +4,67 @@
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
              x:Class="AchxTool.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <Application.Styles>
-        <FluentTheme DensityStyle="Compact"/>
-        <Style Selector="views|NodeInspectorControl">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <ContentPresenter Content="{TemplateBinding Content}">
-                            <ContentPresenter.DataTemplates>
-                                    <DataTemplate DataType="{x:Type vm:AnimationChainViewModel}">
-                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
-                                            <TextBlock Grid.Column="0" Text="Name:"/>
-                                            <TextBox Grid.Column="1" Text="{Binding Name}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                    <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
-                                        <Grid 
-                                            x:Name="MainGrid" 
-                                            ColumnDefinitions="Auto, *" 
-                                            RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
-                                            Margin="4">
-                                            <Grid.Styles>
-                                                <Style Selector="NumericUpDown">
-                                                    <Setter Property="ShowButtonSpinner" Value="True"></Setter>
-                                                    <Setter Property="Padding" Value="0"></Setter>
-                                                </Style>
-                                                <Style Selector="Grid#MainGrid > :is(Control)">
-                                                    <Setter Property="Margin" Value="0,4"></Setter>
-                                                </Style>
-                                                <Style Selector="Grid#MainGrid > TextBlock">
-                                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
-                                                    <Setter Property="Margin" Value="0,0,4,0"></Setter>
-                                                </Style>
+  <Application.Styles>
+    <FluentTheme DensityStyle="Compact"/>
+    <Style Selector="views|NodeInspectorControl">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <ContentPresenter Content="{TemplateBinding Content}">
+              <ContentPresenter.DataTemplates>
+                <DataTemplate DataType="{x:Type vm:AnimationChainViewModel}">
+                  <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                    <TextBlock Grid.Column="0" Text="Name:"/>
+                    <TextBox Grid.Column="1" Text="{Binding Name}"/>
+                  </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+                  <Grid
+                      x:Name="MainGrid"
+                      ColumnDefinitions="Auto, *"
+                      RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
+                      Margin="4">
+                    <Grid.Styles>
+                      <Style Selector="NumericUpDown">
+                        <Setter Property="ShowButtonSpinner" Value="True"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                      </Style>
+                      <Style Selector="Grid#MainGrid > :is(Control)">
+                        <Setter Property="Margin" Value="0,4"></Setter>
+                      </Style>
+                      <Style Selector="Grid#MainGrid > TextBlock">
+                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                        <Setter Property="Margin" Value="0,0,4,0"></Setter>
+                      </Style>
 
-                                            </Grid.Styles>
-                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Name:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Flip Horizontal:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Flip Vertical:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Frame Length:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="4" Text="X:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="5" Text="Y:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="6" Text="Width:"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="7" Text="Height:"/>
+                    </Grid.Styles>
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Name:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Flip Horizontal:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Flip Vertical:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Frame Length:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="X:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Y:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Width:"/>
+                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Height:"/>
 
-                                            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Name}"/>
-                                            <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding FlipHorizontal}"/>
-                                            <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding FlipVertical}"/>
-                                            <NumericUpDown Grid.Column="1" Grid.Row="3" Value="{Binding FrameLength}" AllowSpin="True" ShowButtonSpinner="False"/>
-                                            <NumericUpDown Grid.Column="1" Grid.Row="4" Value="{Binding X}"/>
-                                            <NumericUpDown Grid.Column="1" Grid.Row="5" Value="{Binding Y}"/>
-                                            <NumericUpDown Grid.Column="1" Grid.Row="6" Value="{Binding Width}"/>
-                                            <NumericUpDown Grid.Column="1" Grid.Row="7" Value="{Binding Height}"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Name}"/>
+                    <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding FlipHorizontal}"/>
+                    <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding FlipVertical}"/>
+                    <NumericUpDown Grid.Column="1" Grid.Row="3" Value="{Binding FrameLength}" AllowSpin="True" ShowButtonSpinner="False"/>
+                    <NumericUpDown Grid.Column="1" Grid.Row="4" Value="{Binding X}"/>
+                    <NumericUpDown Grid.Column="1" Grid.Row="5" Value="{Binding Y}"/>
+                    <NumericUpDown Grid.Column="1" Grid.Row="6" Value="{Binding Width}"/>
+                    <NumericUpDown Grid.Column="1" Grid.Row="7" Value="{Binding Height}"/>
 
-                                        </Grid>
-                                    </DataTemplate>
-                                </ContentPresenter.DataTemplates>
-                        </ContentPresenter>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Application.Styles>
+                  </Grid>
+                </DataTemplate>
+              </ContentPresenter.DataTemplates>
+            </ContentPresenter>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Application.Styles>
 </Application>

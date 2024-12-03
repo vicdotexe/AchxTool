@@ -23,6 +23,8 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<AnimationChainViewModel> Nodes { get; } = [];
 
+    public CanvasViewModel CanvasViewModel { get; } = new();
+
     public MainViewModel()
     {
 
