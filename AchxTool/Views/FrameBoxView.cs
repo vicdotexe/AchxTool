@@ -38,12 +38,7 @@ namespace AchxTool.Views
 
         private void Changed(AvaloniaPropertyChangedEventArgs e)
         {
-            e.Property.Name switch
-            {
-                nameof(X) => SetCurrentX((double)e.NewValue),
-                nameof(Y) => SetCurrentY((double)e.NewValue),
-                _ => throw new System.NotImplementedException(),
-            };
+
         }
 
         public static readonly StyledProperty<double> YProperty = AvaloniaProperty.Register<FrameBoxView, double>(nameof(Y), defaultBindingMode: BindingMode.TwoWay);
