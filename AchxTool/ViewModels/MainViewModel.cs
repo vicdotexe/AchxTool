@@ -41,6 +41,14 @@ public partial class MainViewModel : ObservableObject
         Nodes.Add(jump);
 
         Nodes.Add(new (){Name = "Walking"});
+
+        foreach (var frame in Nodes.SelectMany(x => x.Frames))
+        {
+            frame.Width = 50;
+            frame.Height = 50;
+            CanvasViewModel.Items.Add(frame);
+        }
+        
     }
 
     [ObservableProperty]

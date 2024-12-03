@@ -109,18 +109,11 @@
             <Canvas Background="MediumPurple"/>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
-        
-          <ItemsControl.Styles>
-              <Style Selector="ContentPresenter" x:DataType="vm:CanvasBoxViewModel">
-                  <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}"/>
-                  <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}"/>
-              </Style>
-          </ItemsControl.Styles>
-
           <ItemsControl.DataTemplates>
-              <DataTemplate DataType="{x:Type vm:CanvasBoxViewModel}" >
+              <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}" >
                 <views:FrameBoxView BorderBrush="Black" BorderThickness="2" Background="LightBlue"
                                     Width="{Binding Width}" Height="{Binding Height}"
+                                    X="{Binding X, Mode=TwoWay}" Y="{Binding Y, Mode=TwoWay}"
                                     />
               </DataTemplate>
           </ItemsControl.DataTemplates>

@@ -2,6 +2,8 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 
@@ -10,6 +12,69 @@ namespace AchxTool.Views
     public class FrameBoxView : Border
     {
         public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<FrameBoxView, bool>(nameof(IsSelected));
+
+        public static readonly StyledProperty<double> XProperty = AvaloniaProperty.Register<FrameBoxView, double>(nameof(X), defaultBindingMode:BindingMode.TwoWay);
+        public double X
+        {
+            get => GetValue(XProperty);
+            set
+            {
+                SetValue(XProperty, value);
+                //if (Parent is ContentPresenter parent)
+                //{
+                //    parent.SetCurrentValue(Canvas.LeftProperty, value);
+                //}
+            }
+        }
+
+        private void SetCurrentX(double value)
+        {
+            this.SetCurrentValue(XProperty, value);
+            if (Parent is ContentPresenter parent)
+            {
+                parent.SetCurrentValue(Canvas.LeftProperty, value);
+            }
+        }
+
+        private void Changed(AvaloniaPropertyChangedEventArgs e)
+        {
+            e.Property.Name switch
+            {
+                nameof(X) => SetCurrentX((double)e.NewValue),
+                nameof(Y) => SetCurrentY((double)e.NewValue),
+                _ => throw new System.NotImplementedException(),
+            };
+        }
+
+        public static readonly StyledProperty<double> YProperty = AvaloniaProperty.Register<FrameBoxView, double>(nameof(Y), defaultBindingMode: BindingMode.TwoWay);
+        public double Y
+        {
+            get => GetValue(YProperty);
+            set
+            {
+                SetValue(YProperty, value);
+                //if (Parent is ContentPresenter parent)
+                //{
+                //    parent.SetCurrentValue(Canvas.TopProperty, value);
+                //}
+            }
+        }
+
+        private void SetCurrentY(double value)
+        {
+            this.SetCurrentValue(YProperty, value);
+            if (Parent is ContentPresenter parent)
+            {
+                parent.SetCurrentValue(Canvas.TopProperty, value);
+            }
+        }
+
+        private void SetCurrentPosition(Point value)
+        {
+            SetCurrentX(value.X);
+            SetCurrentY(value.Y);
+        }
+
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
@@ -22,7 +87,7 @@ namespace AchxTool.Views
 
         public FrameBoxView()
         {
-            
+            XProperty.Changed.Subscribe(Changed);
         }
 
         protected override void OnPointerEntered(PointerEventArgs e)
@@ -39,23 +104,23 @@ namespace AchxTool.Views
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             _isDragging = true;
-            var test = Parent;
-            if (this.FindAncestorOfType<Canvas>() is { } canvas && DataContext is CanvasItemViewModel vm)
+
+            if (this.FindAncestorOfType<Canvas>() is { } canvas)
             {
                 _canvasDown = e.GetPosition(canvas);
-                _originalLocation = new(vm.X, vm.Y);
+                _originalLocation = e.GetPosition(this);
             }
             base.OnPointerPressed(e);
         }
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
-            if (_isDragging && this.FindAncestorOfType<Canvas>() is { } canvas && DataContext is CanvasItemViewModel vm)
+            if (_isDragging)
             {
-                var pos = e.GetPosition(canvas);
-                var delta = pos - _canvasDown;
-                vm.X = _originalLocation.X + delta.X;
-                vm.Y = _originalLocation.Y + delta.Y;
+                if (this.FindAncestorOfType<Canvas>() is { } canvas)
+                {
+                    SetCurrentPosition(e.GetPosition(canvas) - _originalLocation);
+                }
             }
             base.OnPointerMoved(e);
         }

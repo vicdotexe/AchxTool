@@ -6,6 +6,6 @@ namespace AchxTool.ViewModels
 {
     public class CanvasViewModel : ObservableObject
     {
-        public ObservableCollection<CanvasItemViewModel> Items { get; } = [new CanvasBoxViewModel{Width = 50, Height = 50}];
+        public ObservableCollection<AnimationFrameViewModel> Items { get; } = [];
     }
 }
