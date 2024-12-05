@@ -26,6 +26,8 @@ namespace AchxTool.ViewModels
         double Width { get; set; }
         double Height { get; set; }
         double Z { get; set; }
+        bool IsDragEnabled { get; set; }
+        bool IsResizeEnabled { get; set; }
     }
 
     public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
@@ -47,6 +49,9 @@ namespace AchxTool.ViewModels
 
         [ObservableProperty]
         private Bitmap? _image;
+
+        public bool IsDragEnabled { get; set; } = false;
+        public bool IsResizeEnabled { get; set; } = false;
 
         public CanvasTextureViewModel()
         {

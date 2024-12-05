@@ -137,16 +137,19 @@
                                 DataContext="{Binding CanvasViewModel}"
                                 ItemsSource="{Binding Items}">
         <views:FrameCarvingCanvas.Styles>
-          <Style x:DataType="vm:ICanvasItem" Selector="ContentPresenter">
+          <Style x:DataType="vm:ICanvasItem" Selector="views|DraggableCanvasItem">
             <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
             <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
+            <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
           </Style>
 
+          <Style Selector="" />
+          <!--
           <Style x:DataType="vm:AnimationFrameViewModel" Selector="ContentPresenter">
             <Setter Property="behaviors:CanvasDraggable.IsDraggable" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
             <Setter Property="behaviors:CanvasDraggableBehavior.IsEnabled" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
             <Setter Property="behaviors:CanvasDraggableBehavior.SnapToGrid" Value="1" />
-          </Style>
+          </Style>-->
 
           <Style Selector="Rectangle">
             <Setter Property="Stroke" Value="Black" />
@@ -168,7 +171,7 @@
                        StrokeThickness="1">
               <Interaction.Behaviors>
                 <!--<behaviors:CanvasDraggableBehavior SnapToGrid="1"/>-->
-                <behaviors:PointerPressedBehavior Command="{Binding Select}" />
+                <!--<behaviors:PointerPressedBehavior Command="{Binding Select}" />-->
               </Interaction.Behaviors>
             </Rectangle>
           </DataTemplate>

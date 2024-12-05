@@ -38,6 +38,12 @@ public partial class AnimationFrameViewModel : AchxNodeViewModel, ICanvasItem
     [ObservableProperty]
     private double _height;
 
+    [ObservableProperty]
+    private bool _isDragEnabled = true;
+
+    [ObservableProperty]
+    private bool _isResizeEnabled;
+
     public ObservableCollection<ColliderNodeViewModel> Colliders { get; } = [];
 
     public void Select()
