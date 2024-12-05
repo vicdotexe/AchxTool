@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AchxTool.ViewModels;
 
-public partial class AnimationFrameViewModel : AchxNodeViewModel
+public partial class AnimationFrameViewModel : AchxNodeViewModel, ICanvasItem
 {
     [ObservableProperty]
     private bool _flipHorizontal;
@@ -24,16 +24,24 @@ public partial class AnimationFrameViewModel : AchxNodeViewModel
     private string _textureName;
 
     [ObservableProperty]
-    private float _x;
+    private double _x;
 
     [ObservableProperty]
-    private float _y;
+    private double _y;
+
+    [ObservableProperty] 
+    private double _z;
 
     [ObservableProperty]
-    private float _width;
+    private double _width;
 
     [ObservableProperty]
-    private float _height;
+    private double _height;
 
     public ObservableCollection<ColliderNodeViewModel> Colliders { get; } = [];
+
+    public void Select()
+    {
+        IsSelected = true;
+    }
 }

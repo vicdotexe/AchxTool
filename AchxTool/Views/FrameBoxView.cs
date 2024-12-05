@@ -76,8 +76,8 @@ namespace AchxTool.Views
                 if (this.FindAncestorOfType<Canvas>() is { } canvas)
                 {
                     var pos = e.GetPosition(canvas) - _originalLocation;
-                    SetCurrentValue(XProperty, pos.X);
-                    SetCurrentValue(YProperty, pos.Y);
+                    SetCurrentValue(XProperty, Math.Round(pos.X));
+                    SetCurrentValue(YProperty, Math.Round(pos.Y));
                 }
             }
             base.OnPointerMoved(e);
