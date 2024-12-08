@@ -1,0 +1,116 @@
+<Application x:Class="AchxTool.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
+             xmlns:views="clr-namespace:AchxTool.Views"
+             xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             RequestedThemeVariant="Default">
+  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+  <Application.Styles>
+    <FluentTheme DensityStyle="Compact" />
+    <Style Selector="canvasItems|TranslationAdorner">
+      <Setter Property="Width" Value="50" />
+      <Setter Property="Height" Value="50" />
+      <Setter Property="UseLayoutRounding" Value="False" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Width="50"
+                  Height="50"
+                  Background="Transparent" />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="views|NodeInspectorControl">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <ContentPresenter Content="{TemplateBinding Content}">
+              <ContentPresenter.DataTemplates>
+                <DataTemplate DataType="{x:Type vm:AnimationChainViewModel}">
+                  <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                    <TextBlock Grid.Column="0" Text="Name:" />
+                    <TextBox Grid.Column="1" Text="{Binding Name}" />
+                  </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+                  <Grid x:Name="MainGrid"
+                        Margin="4"
+                        ColumnDefinitions="Auto, *"
+                        RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                    <Grid.Styles>
+                      <Style Selector="NumericUpDown">
+                        <Setter Property="ShowButtonSpinner" Value="True" />
+                        <Setter Property="Padding" Value="0" />
+                      </Style>
+                      <Style Selector="Grid#MainGrid > :is(Control)">
+                        <Setter Property="Margin" Value="0,4" />
+                      </Style>
+                      <Style Selector="Grid#MainGrid > TextBlock">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="0,0,4,0" />
+                      </Style>
+
+                    </Grid.Styles>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Name:" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="Flip Horizontal:" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="Flip Vertical:" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Frame Length:" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="0"
+                               Text="X:" />
+                    <TextBlock Grid.Row="5"
+                               Grid.Column="0"
+                               Text="Y:" />
+                    <TextBlock Grid.Row="6"
+                               Grid.Column="0"
+                               Text="Width:" />
+                    <TextBlock Grid.Row="7"
+                               Grid.Column="0"
+                               Text="Height:" />
+
+                    <TextBox Grid.Row="0"
+                             Grid.Column="1"
+                             Text="{Binding Name}" />
+                    <CheckBox Grid.Row="1"
+                              Grid.Column="1"
+                              IsChecked="{Binding FlipHorizontal}" />
+                    <CheckBox Grid.Row="2"
+                              Grid.Column="1"
+                              IsChecked="{Binding FlipVertical}" />
+                    <NumericUpDown Grid.Row="3"
+                                   Grid.Column="1"
+                                   AllowSpin="True"
+                                   ShowButtonSpinner="False"
+                                   Value="{Binding FrameLength}" />
+                    <NumericUpDown Grid.Row="4"
+                                   Grid.Column="1"
+                                   Value="{Binding X}" />
+                    <NumericUpDown Grid.Row="5"
+                                   Grid.Column="1"
+                                   Value="{Binding Y}" />
+                    <NumericUpDown Grid.Row="6"
+                                   Grid.Column="1"
+                                   Value="{Binding Width}" />
+                    <NumericUpDown Grid.Row="7"
+                                   Grid.Column="1"
+                                   Value="{Binding Height}" />
+
+                  </Grid>
+                </DataTemplate>
+              </ContentPresenter.DataTemplates>
+            </ContentPresenter>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Application.Styles>
+</Application>

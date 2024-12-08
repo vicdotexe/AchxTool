@@ -1,0 +1,186 @@
+<UserControl x:Class="AchxTool.Views.MainView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:achxTool="clr-namespace:AchxTool"
+             xmlns:behaviors="clr-namespace:AchxTool.Behaviors"
+             xmlns:converters="clr-namespace:AchxTool.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:AchxTool.Views"
+             xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:DataType="vm:MainViewModel"
+             RenderOptions.BitmapInterpolationMode="None"
+             RenderOptions.EdgeMode="Aliased"
+             UseLayoutRounding="True"
+             mc:Ignorable="d">
+  <Design.DataContext>
+    <!--
+      This only sets the DataContext for the previewer in an IDE.
+      The actual setting of the DataContext is done in the code-behind with an overloaded constructor.
+    -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+  <UserControl.Resources>
+    <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
+    <converters:IsTypeConverter x:Key="IsTypeConverter" />
+  </UserControl.Resources>
+  <UserControl.Styles>
+    <Style Selector="canvasItems|FrameCarvingCanvas">
+      <Setter Property="UseLayoutRounding" Value="False" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ScrollViewer Background="{TemplateBinding Background}">
+            <ZoomBorder HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        ClipToBounds="True"
+                        Focusable="True"
+                        Stretch="Fill"
+                        TransitionThreshold=""
+                        ZoomSpeed="1.2">
+              <ItemsPresenter>
+                <ItemsPresenter.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            UseLayoutRounding="False" />
+
+                  </ItemsPanelTemplate>
+                </ItemsPresenter.ItemsPanel>
+              </ItemsPresenter>
+            </ZoomBorder>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
+  <Grid RowDefinitions="Auto,*">
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,250">
+      <Grid.Styles>
+        <Styles>
+          <Style Selector="GridSplitter">
+            <Setter Property="Width" Value="4" />
+          </Style>
+
+          <Style Selector="TreeView">
+            <Style.Resources>
+              <behaviors:NodeTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
+            </Style.Resources>
+            <Setter Property="(Interaction.Behaviors)">
+              <BehaviorCollectionTemplate>
+                <BehaviorCollection>
+                  <ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+                </BehaviorCollection>
+              </BehaviorCollectionTemplate>
+            </Setter>
+          </Style>
+        </Styles>
+
+      </Grid.Styles>
+      <TreeView x:Name="MainTreeView"
+                Grid.Column="0"
+                BorderThickness="0"
+                ItemsSource="{Binding Nodes}"
+                SelectedItem="{Binding CanvasViewModel.SelectedItem}"
+                SelectionChanged="MainTreeView_OnSelectionChanged"
+                SelectionMode="Multiple">
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="True" />
+          </Style>
+        </TreeView.Styles>
+        <TreeView.DataTemplates>
+          <TreeDataTemplate DataType="{x:Type vm:AnimationChainViewModel}" ItemsSource="{Binding Frames}">
+            <TextBlock>
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Animation">
+                  <Binding Path="Name" />
+                  <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
+                  <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
+                </MultiBinding>
+              </TextBlock.Text>
+              <TextBlock.ContextFlyout>
+                <MenuFlyout>
+                  <MenuItem Command="{Binding AddFrameCommand}" Header="Add Frame" />
+                </MenuFlyout>
+              </TextBlock.ContextFlyout>
+            </TextBlock>
+          </TreeDataTemplate>
+          <TreeDataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+            <TextBlock>
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">
+                  <Binding Path="Name" />
+                  <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
+                  <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+          </TreeDataTemplate>
+        </TreeView.DataTemplates>
+      </TreeView>
+      <GridSplitter Grid.Column="1" />
+
+
+      <canvasItems:FrameCarvingCanvas Grid.Column="2"
+                                Background="Green"
+                                DataContext="{Binding CanvasViewModel}"
+                                ItemsSource="{Binding Items}"
+                                SelectedItem="{Binding SelectedItem}">
+        <canvasItems:FrameCarvingCanvas.Styles>
+
+          <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
+            <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
+            <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
+            <Setter Property="Width" Value="{Binding Width}" />
+            <Setter Property="Height" Value="{Binding Height}" />
+            <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
+            
+          </Style>
+
+          <Style Selector="" />
+          <!--
+          <Style x:DataType="vm:AnimationFrameViewModel" Selector="ContentPresenter">
+            <Setter Property="behaviors:CanvasDraggable.IsDraggable" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
+            <Setter Property="behaviors:CanvasDraggableBehavior.IsEnabled" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
+            <Setter Property="behaviors:CanvasDraggableBehavior.SnapToGrid" Value="1" />
+          </Style>-->
+
+          <Style Selector="Rectangle">
+            <Setter Property="Stroke" Value="Black" />
+          </Style>
+          <Style Selector="canvasItems|DraggableCanvasItem:isSelected > Rectangle">
+            <Setter Property="Stroke" Value="Blue" />
+          </Style>
+          <Style Selector="Rectangle:pointerover">
+            <Setter Property="Stroke" Value="Red" />
+          </Style>
+        </canvasItems:FrameCarvingCanvas.Styles>
+        <canvasItems:FrameCarvingCanvas.DataTemplates>
+          <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+            <Rectangle 
+                       Fill="Transparent"
+                       StrokeDashArray="4,2"
+                       StrokeThickness="1"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch">
+              <Interaction.Behaviors>
+                <!--<behaviors:CanvasDraggableBehavior SnapToGrid="1"/>-->
+                <behaviors:PointerPressedBehavior Command="{Binding Select}" />
+              </Interaction.Behaviors>
+            </Rectangle>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
+            <Image Source="/Assets/test-spritesheet.png" ClipToBounds="False"/>
+          </DataTemplate>
+        </canvasItems:FrameCarvingCanvas.DataTemplates>
+      </canvasItems:FrameCarvingCanvas>
+      <GridSplitter Grid.Column="3" />
+      <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding CanvasViewModel.SelectedItem}" />
+    </Grid>
+  </Grid>
+
+
+</UserControl>
