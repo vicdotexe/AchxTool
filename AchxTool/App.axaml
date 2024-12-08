@@ -9,18 +9,6 @@
 
   <Application.Styles>
     <FluentTheme DensityStyle="Compact" />
-    <Style Selector="canvasItems|TranslationAdorner">
-      <Setter Property="Width" Value="50" />
-      <Setter Property="Height" Value="50" />
-      <Setter Property="UseLayoutRounding" Value="False" />
-      <Setter Property="Template">
-        <ControlTemplate>
-          <Border Width="50"
-                  Height="50"
-                  Background="Transparent" />
-        </ControlTemplate>
-      </Setter>
-    </Style>
     <Style Selector="views|NodeInspectorControl">
       <Setter Property="Template">
         <Setter.Value>

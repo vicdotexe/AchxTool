@@ -38,7 +38,6 @@
                         ClipToBounds="True"
                         Focusable="True"
                         Stretch="Fill"
-                        TransitionThreshold=""
                         ZoomSpeed="1.2">
               <ItemsPresenter>
                 <ItemsPresenter.ItemsPanel>
@@ -173,7 +172,7 @@
             </Rectangle>
           </DataTemplate>
           <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-            <Image Source="/Assets/test-spritesheet.png" ClipToBounds="False"/>
+            <Image Source="/Assets/test-spritesheet.png" IsHitTestVisible="False"/>
           </DataTemplate>
         </canvasItems:FrameCarvingCanvas.DataTemplates>
       </canvasItems:FrameCarvingCanvas>

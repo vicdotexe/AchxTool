@@ -4,17 +4,20 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.VisualTree;
+using Avalonia.Controls.PanAndZoom;
 
 namespace AchxTool.Views.CanvasItems;
 
 [PseudoClasses(":isSelected")]
-public class DraggableCanvasItem : ContentPresenter
+public class DraggableCanvasItem : ContentControl
 {
     public static readonly StyledProperty<double> SnapToGridProperty =
         AvaloniaProperty.Register<DraggableCanvasItem, double>(nameof(SnapToGrid));
 
-    private TranslationAdorner TransformAdorner { get; }
+    private Point _pressedOffset;
+    private bool _isDragging;
 
     public double SnapToGrid
     {
@@ -32,7 +35,9 @@ public class DraggableCanvasItem : ContentPresenter
     }
 
 
-    public FrameCarvingCanvas? Canvas { get; private set; }
+    public FrameCarvingCanvas? FrameCarver { get; private set; }
+
+    private Canvas? Canvas { get; set; }
 
     public static readonly DirectProperty<DraggableCanvasItem, bool> IsSelectedProperty =
         AvaloniaProperty.RegisterDirect<DraggableCanvasItem, bool>(nameof(IsSelected), o => o.IsSelected);
@@ -40,40 +45,33 @@ public class DraggableCanvasItem : ContentPresenter
 
     public bool IsSelected
     {
-        get => Canvas?.SelectedItem == Content;
+        get => FrameCarver?.SelectedItem == Content;
     }
 
     public DraggableCanvasItem()
     {
-        TransformAdorner = new TranslationAdorner(this);
-        AttachedToVisualTree += (s, e) =>
-        {
-            if (AdornerLayer.GetAdornerLayer(this) is { } layer)
-            {
-
-                TransformAdorner.IsVisible = false;
-                layer.Children.Add(TransformAdorner);
-                AdornerLayer.SetAdornedElement(TransformAdorner, this);
-            }
-        };
         AttachedToVisualTree += OnAttachedToVisualTree;
     }
 
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
-        if (Canvas is not null)
+        Canvas = this.FindAncestorOfType<Canvas>();
+
+        if (FrameCarver is not null)
         {
-            Canvas.PropertyChanged -= WatchCanvas;
+            FrameCarver.PropertyChanged -= WatchFrameCarver;
         }
 
-        Canvas = this.FindAncestorOfType<FrameCarvingCanvas>();
+        FrameCarver = this.FindAncestorOfType<FrameCarvingCanvas>();
 
-        if (Canvas is not null)
+        if (FrameCarver is not null)
         {
-            Canvas.PropertyChanged += WatchCanvas;
+            FrameCarver.PropertyChanged += WatchFrameCarver;
         }
 
-        void WatchCanvas(object? sender, AvaloniaPropertyChangedEventArgs e)
+
+
+        void WatchFrameCarver(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Property.Name == nameof(FrameCarvingCanvas.SelectedItem))
             {
@@ -85,22 +83,37 @@ public class DraggableCanvasItem : ContentPresenter
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        base.OnPointerPressed(e);
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && Canvas is not null)
+        
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && FrameCarver is not null)
         {
-            Canvas.SelectedItem = Content;
+            FrameCarver.SelectedItem = Content;
+            _isDragging = IsDragEnabled;
+            _pressedOffset = e.GetPosition(this);
+            e.Handled = true;
         }
+        base.OnPointerPressed(e);
     }
 
-    protected override void OnPointerEntered(PointerEventArgs e)
+    protected override void OnPointerMoved(PointerEventArgs e)
     {
-        base.OnPointerEntered(e);
-        TransformAdorner.IsVisible = true;
+        if (_isDragging && Canvas is not null)
+        {
+            var (x, y) = e.GetPosition(Canvas);
+            SetCurrentValue(Canvas.LeftProperty, Math.Round(x - _pressedOffset.X));
+            SetCurrentValue(Canvas.TopProperty, Math.Round(y - _pressedOffset.Y));
+        }
+        base.OnPointerMoved(e);
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        _isDragging = false;
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        Canvas = this.FindAncestorOfType<FrameCarvingCanvas>();
+        FrameCarver = this.FindAncestorOfType<FrameCarvingCanvas>();
     }
 }
