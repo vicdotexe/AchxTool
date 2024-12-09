@@ -14,10 +14,19 @@ public partial class CanvasViewModel : ObservableObject
     [ObservableProperty]
     private ICanvasItem? _selectedItem;
 
-    public CanvasViewModel()
+    public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory)
     {
-        TextureViewModel = new() { Z = -1, ImageSource = "../test-spritesheet.png"};
+        var textureVm = textureVmFactory();
+        textureVm.ImageSource = "test-spritesheet.png";
+        textureVm.Z = -1;
+        TextureViewModel = textureVm;
+
         Items.Add(TextureViewModel);
+    }
+
+    partial void OnSelectedItemChanged(ICanvasItem? value)
+    {
+        TextureViewModel.ImageSource = value is AnimationFrameViewModel frame ? frame.TextureName : null;
     }
 }
 
@@ -50,12 +59,18 @@ public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
     private double? _height;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Image))]
     private string? _imageSource;
+
+    public Bitmap? Image => ImageSource is not null ? BitmapBank.Get(ImageSource) : null;
 
     public bool IsDragEnabled { get; set; } = false;
     public bool IsResizeEnabled { get; set; } = false;
 
-    public CanvasTextureViewModel()
+    private IBitmapBank BitmapBank { get; }
+
+    public CanvasTextureViewModel(IBitmapBank bitmapBank)
     {
+        BitmapBank = bitmapBank;
     }
 }

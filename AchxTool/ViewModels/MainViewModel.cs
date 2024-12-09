@@ -11,17 +11,34 @@ namespace AchxTool.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
     private AchxNodeViewModel? _selectedNode;
+
+    public AnimationChainViewModel? ActiveAnimation =>
+        SelectedNode is not null ? Nodes.FindParentAnimation(SelectedNode) : null;
 
     public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
 
     public CanvasViewModel CanvasViewModel { get; }
+    public AnimationRunnerViewModel AnimationRunner { get; }
 
-    public MainViewModel(CanvasViewModel canvasViewModel)
+    public MainViewModel(CanvasViewModel canvasViewModel, 
+        Func<AnimationChainViewModel> animationFactory, 
+        Func<AnimationFrameViewModel> frameFactory, 
+        AnimationRunnerViewModel animationRunner)
     {
         CanvasViewModel = canvasViewModel;
+        AnimationRunner = animationRunner;
 
-        List<AchxNodeViewModel> nodes = [..MockData(() => new(), () => new() { Width = 50, Height = 50 })];
+        List<AchxNodeViewModel> nodes = [..MockData(animationFactory, () =>
+        {
+            var frame = frameFactory();
+            frame.Width = 50;
+            frame.Height = 50;
+            frame.FrameLength = 250;
+            frame.TextureName = "test-spritesheet.png";
+            return frame;
+        })];
         foreach (var node in nodes)
         {
             AddNode(node);
@@ -42,23 +59,16 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
     {
-        foreach (var node in Nodes
-                     .OfType<AnimationChainViewModel>()
-                     .Aggregate(new List<AchxNodeViewModel>(),
-                         (acc, x) =>
-                         {
-                             acc.AddRange([x, .. x.Frames]);
-                             return acc;
-                         }))
+        foreach (var node in Nodes.Flatten())
         {
             node.IsSelected = node == value;
-
-            if (node.IsSelected)
-            {
-                CanvasViewModel.SelectedItem = node as ICanvasItem ?? null;
-            }
         }
+
+        CanvasViewModel.SelectedItem = value as ICanvasItem;
+        AnimationRunner.ActiveChain = ActiveAnimation;
     }
+
+    
 
     private IEnumerable<AchxNodeViewModel> MockData(Func<AnimationChainViewModel> chain, Func<AnimationFrameViewModel> frame)
     {
@@ -81,4 +91,57 @@ public partial class MainViewModel : ObservableObject
         walking.Name = "Walking";
         yield return walking;
     }
+}
+
+public static class NodeHelpers
+{
+    public static IEnumerable<AchxNodeViewModel> Flatten(this IEnumerable<AchxNodeViewModel> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (node is AnimationChainViewModel chain)
+            {
+                yield return chain;
+                foreach (var frame in chain.Frames)
+                {
+                    yield return frame;
+                    foreach (var collider in frame.Colliders)
+                    {
+                        yield return collider;
+                    }
+                }
+            }
+            else
+            {
+                yield return node;
+            }
+        }
+    }
+
+    public static AchxNodeViewModel? FindDirectParent(this IEnumerable<AchxNodeViewModel> nodes, AchxNodeViewModel node)
+    {
+        List<AchxNodeViewModel> allNodes = [..nodes.Flatten()];
+
+        return allNodes.FirstOrDefault(n => n switch
+        {
+            AnimationChainViewModel chain => chain.Frames.Contains(node),
+            AnimationFrameViewModel frame => frame.Colliders.Contains(node),
+            ColliderNodeViewModel collider => false,
+            _ => false
+        });
+    }
+
+    public static AnimationChainViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
+        AchxNodeViewModel node)
+    {
+        List<AchxNodeViewModel> allNodes = [..nodes.Flatten()];
+
+        return allNodes.FindDirectParent(node) switch
+        {
+            AnimationChainViewModel chain => chain,
+            AnimationFrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationChainViewModel,
+            _ => null
+        };
+    }
+
 }

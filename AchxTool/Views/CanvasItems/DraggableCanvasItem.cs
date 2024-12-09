@@ -101,7 +101,7 @@ public class DraggableCanvasItem : ContentControl
         {
             if (e.Property.Name == nameof(FrameCarvingCanvas.SelectedItem))
             {
-                RaisePropertyChanged(IsSelectedProperty, e.OldValue is true, e.NewValue is true);
+                RaisePropertyChanged(IsSelectedProperty, e.OldValue == Content, e.NewValue == Content);
                 PseudoClasses.Set(":isSelected", e.NewValue == Content);
             }
         }

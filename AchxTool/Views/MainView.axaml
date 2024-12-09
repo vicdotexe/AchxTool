@@ -27,6 +27,8 @@
     <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
     <converters:IsTypeConverter x:Key="IsTypeConverter" />
     <converters:ScaleInverterConverter x:Key="ScaleInverterConverter" />
+    <converters:OppositeSignConverter x:Key="OppositeSignConverter"></converters:OppositeSignConverter>
+    <converters:FrameToRectConverter x:Key="FrameToRectConverter"></converters:FrameToRectConverter>
   </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="canvasItems|FrameCarvingCanvas">
@@ -83,7 +85,7 @@
                 Grid.Column="0"
                 BorderThickness="0"
                 ItemsSource="{Binding Nodes}"
-                SelectedItem="{Binding CanvasViewModel.SelectedItem}"
+                SelectedItem="{Binding SelectedNode}"
                 SelectionChanged="MainTreeView_OnSelectionChanged"
                 SelectionMode="Multiple">
         <TreeView.Styles>
@@ -167,12 +169,19 @@
                        StrokeThickness="1" />
           </DataTemplate>
           <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-            <Image IsHitTestVisible="False" Source="/Assets/test-spritesheet.png" />
+            <Image Source="{Binding Image}" />
           </DataTemplate>
         </canvasItems:FrameCarvingCanvas.DataTemplates>
       </canvasItems:FrameCarvingCanvas>
       <GridSplitter Grid.Column="3" />
-      <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding CanvasViewModel.SelectedItem}" />
+      <StackPanel Grid.Column="4">
+          <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}" />
+          <Canvas>
+              <Image Source="{Binding AnimationRunner.Image}" Width="128" Height="128" Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}" Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}" Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}">
+              </Image>
+          </Canvas>
+
+      </StackPanel>
     </Grid>
   </Grid>
 
