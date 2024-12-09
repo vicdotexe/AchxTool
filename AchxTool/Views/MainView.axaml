@@ -3,12 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:achxTool="clr-namespace:AchxTool"
              xmlns:behaviors="clr-namespace:AchxTool.Behaviors"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
-             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="vm:MainViewModel"
@@ -26,6 +26,7 @@
   <UserControl.Resources>
     <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
     <converters:IsTypeConverter x:Key="IsTypeConverter" />
+    <converters:ScaleInverterConverter x:Key="ScaleInverterConverter" />
   </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="canvasItems|FrameCarvingCanvas">
@@ -124,55 +125,49 @@
 
 
       <canvasItems:FrameCarvingCanvas Grid.Column="2"
-                                Background="Green"
-                                DataContext="{Binding CanvasViewModel}"
-                                ItemsSource="{Binding Items}"
-                                SelectedItem="{Binding SelectedItem}">
+                                      Background="Green"
+                                      DataContext="{Binding CanvasViewModel}"
+                                      ItemsSource="{Binding Items}"
+                                      SelectedItem="{Binding SelectedItem}">
         <canvasItems:FrameCarvingCanvas.Styles>
 
           <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
             <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
             <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
-            <Setter Property="Width" Value="{Binding Width}" />
-            <Setter Property="Height" Value="{Binding Height}" />
+            <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
+            <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
             <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
-            
           </Style>
-
-          <Style Selector="" />
-          <!--
-          <Style x:DataType="vm:AnimationFrameViewModel" Selector="ContentPresenter">
-            <Setter Property="behaviors:CanvasDraggable.IsDraggable" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
-            <Setter Property="behaviors:CanvasDraggableBehavior.IsEnabled" Value="{Binding Converter={StaticResource IsTypeConverter}, ConverterParameter={x:Type vm:AnimationFrameViewModel}}" />
-            <Setter Property="behaviors:CanvasDraggableBehavior.SnapToGrid" Value="1" />
-          </Style>-->
 
           <Style Selector="Rectangle">
             <Setter Property="Stroke" Value="Black" />
           </Style>
-          <Style Selector="canvasItems|DraggableCanvasItem:isSelected > Rectangle">
-            <Setter Property="Stroke" Value="Blue" />
-          </Style>
-          <Style Selector="Rectangle:pointerover">
+          <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
             <Setter Property="Stroke" Value="Red" />
           </Style>
+          <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
+            <Setter Property="Stroke" Value="Blue" />
+          </Style>
+          <Style Selector="canvasItems|DraggableCanvasItem Thumb">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+
+              <ScaleTransform ScaleX="{Binding $parent[ZoomBorder].ZoomX, Mode=OneWay}" ScaleY="{Binding $parent[ZoomBorder].ZoomY, Mode=OneWay}" />
+
+
+            </Setter>
+          </Style>
+
         </canvasItems:FrameCarvingCanvas.Styles>
         <canvasItems:FrameCarvingCanvas.DataTemplates>
           <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
-            <Rectangle 
-                       Fill="Transparent"
+            <Rectangle HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
                        StrokeDashArray="4,2"
-                       StrokeThickness="1"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch">
-              <Interaction.Behaviors>
-                <!--<behaviors:CanvasDraggableBehavior SnapToGrid="1"/>-->
-                <behaviors:PointerPressedBehavior Command="{Binding Select}" />
-              </Interaction.Behaviors>
-            </Rectangle>
+                       StrokeThickness="1" />
           </DataTemplate>
           <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-            <Image Source="/Assets/test-spritesheet.png" IsHitTestVisible="False"/>
+            <Image IsHitTestVisible="False" Source="/Assets/test-spritesheet.png" />
           </DataTemplate>
         </canvasItems:FrameCarvingCanvas.DataTemplates>
       </canvasItems:FrameCarvingCanvas>

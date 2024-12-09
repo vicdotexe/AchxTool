@@ -2,11 +2,15 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
+             xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+  <Application.Resources>
+    <converters:MathAddConverter x:Key="MathAddConverter" />
+  </Application.Resources>
   <Application.Styles>
     <FluentTheme DensityStyle="Compact" />
     <Style Selector="views|NodeInspectorControl">
@@ -98,6 +102,85 @@
             </ContentPresenter>
           </ControlTemplate>
         </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style Selector="canvasItems|DraggableCanvasItem">
+      <Setter Property="ClipToBounds" Value="False" />
+      <Setter Property="SnapToGrid" Value="1" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Template">
+        <ControlTemplate>
+
+          <Grid Margin="-2" ClipToBounds="False">
+            <ContentPresenter Width="{TemplateBinding Width}"
+                              Height="{TemplateBinding Height}"
+                              Background="{TemplateBinding Background}"
+                              Content="{TemplateBinding Content}" />
+            <Grid Name="PART_ResizeGrid">
+              <Grid.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <Binding Path="IsSelected" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <Binding Path="IsDragEnabled" RelativeSource="{RelativeSource TemplatedParent}" />
+                </MultiBinding>
+              </Grid.IsVisible>
+              <Grid.Styles>
+                <Style Selector="Thumb">
+                  <Setter Property="Background" Value="White" />
+                  <Setter Property="Width" Value="4" />
+                  <Setter Property="Height" Value="4" />
+                  <Setter Property="Template">
+                    <ControlTemplate>
+                      <Border Background="{TemplateBinding Background}" />
+                    </ControlTemplate>
+                  </Setter>
+                </Style>
+              </Grid.Styles>
+              <Thumb Name="TopLeftHandle"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Cursor="TopLeftCorner" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="TopRightHandle"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Top"
+                     Cursor="TopRightCorner" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="BottomLeftHandle"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Bottom"
+                     Cursor="BottomLeftCorner" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="BottomRightHandle"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Bottom"
+                     Cursor="BottomRightCorner" 
+                     Classes.isThumb="True"/>
+
+              <Thumb Name="TopHandle"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Cursor="SizeNorthSouth" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="LeftHandle"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Center"
+                     Cursor="SizeWestEast" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="RightHandle"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Center"
+                     Cursor="SizeWestEast" 
+                     Classes.isThumb="True"/>
+              <Thumb Name="BottomHandle"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Cursor="SizeNorthSouth" 
+                     Classes.isThumb="True"/>
+            </Grid>
+
+          </Grid>
+        </ControlTemplate>
       </Setter>
     </Style>
   </Application.Styles>

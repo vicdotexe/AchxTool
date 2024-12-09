@@ -50,40 +50,10 @@ public class DraggableCanvasItem : ContentControl
 
     public DraggableCanvasItem()
     {
-        AttachedToVisualTree += OnAttachedToVisualTree;
-    }
-
-    private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
-    {
-        Canvas = this.FindAncestorOfType<Canvas>();
-
-        if (FrameCarver is not null)
-        {
-            FrameCarver.PropertyChanged -= WatchFrameCarver;
-        }
-
-        FrameCarver = this.FindAncestorOfType<FrameCarvingCanvas>();
-
-        if (FrameCarver is not null)
-        {
-            FrameCarver.PropertyChanged += WatchFrameCarver;
-        }
-
-
-
-        void WatchFrameCarver(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Property.Name == nameof(FrameCarvingCanvas.SelectedItem))
-            {
-                RaisePropertyChanged(IsSelectedProperty, e.OldValue is true, e.NewValue is true);
-                PseudoClasses.Set(":isSelected", ReferenceEquals(e.NewValue, Content));
-            }
-        }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && FrameCarver is not null)
         {
             FrameCarver.SelectedItem = Content;
@@ -113,7 +83,108 @@ public class DraggableCanvasItem : ContentControl
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        base.OnAttachedToVisualTree(e);
+        Canvas = this.FindAncestorOfType<Canvas>();
+
+        if (FrameCarver is not null)
+        {
+            FrameCarver.PropertyChanged -= WatchFrameCarver;
+        }
+
         FrameCarver = this.FindAncestorOfType<FrameCarvingCanvas>();
+
+        if (FrameCarver is not null)
+        {
+            FrameCarver.PropertyChanged += WatchFrameCarver;
+        }
+
+        void WatchFrameCarver(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property.Name == nameof(FrameCarvingCanvas.SelectedItem))
+            {
+                RaisePropertyChanged(IsSelectedProperty, e.OldValue is true, e.NewValue is true);
+                PseudoClasses.Set(":isSelected", e.NewValue == Content);
+            }
+        }
+
+        base.OnAttachedToVisualTree(e);
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        List<Thumb?> thumbs =
+        [
+            e.NameScope.Find<Thumb>("TopLeftHandle"),
+            e.NameScope.Find<Thumb>("TopHandle"),
+            e.NameScope.Find<Thumb>("TopRightHandle"),
+            e.NameScope.Find<Thumb>("RightHandle"),
+            e.NameScope.Find<Thumb>("BottomRightHandle"),
+            e.NameScope.Find<Thumb>("BottomHandle"),
+            e.NameScope.Find<Thumb>("BottomLeftHandle"),
+            e.NameScope.Find<Thumb>("LeftHandle")
+        ];
+
+        foreach (Thumb? thumb in thumbs)
+        {
+            if (thumb is null)
+            {
+                continue;
+            }
+            thumb.DragDelta += (sender, e) =>
+            {
+                if (Canvas is not null && sender is Thumb {Name: var name})
+                {
+                    double left = Canvas.GetLeft(this);
+                    double top = Canvas.GetTop(this);
+                    double right = left + this.Width;
+                    double bottom = top + this.Height;
+
+                    switch (name)
+                    {
+                        case "TopLeftHandle":
+                            left += e.Vector.X;
+                            top += e.Vector.Y;
+                            break;
+                        case "TopHandle":
+                            top += e.Vector.Y;
+                            break;
+                        case "TopRightHandle":
+                            right += e.Vector.X;
+                            top += e.Vector.Y;
+                            break;
+                        case "RightHandle":
+                            right += e.Vector.X;
+                            break;
+                        case "BottomRightHandle":
+                            right += e.Vector.X;
+                            bottom += e.Vector.Y;
+                            break;
+                        case "BottomHandle":
+                            bottom += e.Vector.Y;
+                            break;
+                        case "BottomLeftHandle":
+                            left += e.Vector.X;
+                            bottom += e.Vector.Y;
+                            break;
+                        case "LeftHandle":
+                            left += e.Vector.X;
+                            break;
+                    }
+
+                    if (SnapToGrid > 0)
+                    {
+                        left = Math.Round(left / SnapToGrid) * SnapToGrid;
+                        top = Math.Round(top / SnapToGrid) * SnapToGrid;
+                        right = Math.Round(right / SnapToGrid) * SnapToGrid;
+                        bottom = Math.Round(bottom / SnapToGrid) * SnapToGrid;
+                    }
+
+                    this.SetCurrentValue(WidthProperty, Math.Max(1, right - left));
+                    this.SetCurrentValue(HeightProperty, Math.Max(1, bottom - top));
+                    this.SetCurrentValue(Canvas.LeftProperty, left);
+                    this.SetCurrentValue(Canvas.TopProperty, top);
+                }
+            };
+        }
     }
 }
