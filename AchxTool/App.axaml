@@ -13,7 +13,7 @@
     <converters:MathAddConverter x:Key="MathAddConverter" />
   </Application.Resources>
   <Application.Styles>
-    <FluentTheme DensityStyle="Compact" />
+    <SimpleTheme />
     <Style Selector="views|NodeInspectorControl">
       <Setter Property="Template">
         <Setter.Value>

@@ -13,8 +13,6 @@
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="vm:MainViewModel"
-             RenderOptions.BitmapInterpolationMode="None"
-             RenderOptions.EdgeMode="Aliased"
              UseLayoutRounding="True"
              mc:Ignorable="d">
   <Design.DataContext>
@@ -33,28 +31,22 @@
   </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="canvasItems|FrameCarvingCanvas">
-      <Setter Property="UseLayoutRounding" Value="False" />
       <Setter Property="Template">
         <ControlTemplate>
-          <ScrollViewer Background="{TemplateBinding Background}">
-            <ZoomBorder HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        ClipToBounds="True"
-                        Focusable="True"
-                        Stretch="Fill"
-                        ZoomSpeed="1.2">
+            <ZoomBorder ClipToBounds="True"
+                        ZoomSpeed="1.2"
+                        Stretch="None">
               <ItemsPresenter>
                 <ItemsPresenter.ItemsPanel>
                   <ItemsPanelTemplate>
-                    <Canvas HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
+                    <Canvas VerticalAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
                             UseLayoutRounding="False" />
 
                   </ItemsPanelTemplate>
                 </ItemsPresenter.ItemsPanel>
               </ItemsPresenter>
             </ZoomBorder>
-          </ScrollViewer>
         </ControlTemplate>
       </Setter>
     </Style>
@@ -169,23 +161,42 @@
                        StrokeThickness="1" />
           </DataTemplate>
           <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-            <Image Source="{Binding Image}" />
+            <Image Source="{Binding Image}" RenderOptions.BitmapInterpolationMode="None"/>
           </DataTemplate>
         </canvasItems:FrameCarvingCanvas.DataTemplates>
       </canvasItems:FrameCarvingCanvas>
       <GridSplitter Grid.Column="3" />
-      <StackPanel Grid.Column="4">
-        <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}" />
-        <Canvas>
-          <Image Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}"
-                 Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}"
-                 Width="{Binding AnimationRunner.Image.PixelSize.Width}"
-                 Height="{Binding AnimationRunner.Image.PixelSize.Height}"
-                 Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}"
-                 Source="{Binding AnimationRunner.Image}" />
-        </Canvas>
+      <Grid RowDefinitions="2*,Auto,*" Grid.Column="4">
+          <Grid.Styles>
+              <Styles>
+                  <Style Selector="GridSplitter">
+                      <Setter Property="Height" Value="4" />
+                      <Setter Property="Width" Value="NaN"></Setter>
+                  </Style>
+                  </Styles>
+              </Grid.Styles>
+                  <views:NodeInspectorControl SelectedNode="{Binding SelectedNode}" />
+        <GridSplitter Grid.Row="1"/>
+        <ZoomBorder ClipToBounds="True"
+                    Grid.Row="2"
+                    ZoomSpeed="1.2"
+                    Background="Black"
+                    Stretch="None"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+            <Canvas RenderOptions.BitmapInterpolationMode="None">
+                <Image Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}"
+                       Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}"
+                       Width="{Binding AnimationRunner.Image.PixelSize.Width}"
+                       Height="{Binding AnimationRunner.Image.PixelSize.Height}"
+                       Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}"
+                       Source="{Binding AnimationRunner.Image}" />
+            </Canvas>
 
-      </StackPanel>
+        </ZoomBorder>
+
+
+    </Grid>
     </Grid>
   </Grid>
 
