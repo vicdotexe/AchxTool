@@ -1,76 +1,102 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+
+using AchxTool.Services;
+using AchxTool.ViewModels.Nodes;
 
 using Avalonia.Media.Imaging;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
-public partial class CanvasViewModel : ObservableObject
+
+public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.SelectedNodeChanged>,
+    IRecipient<Messages.ActiveAnimationChanged>
 {
     public ObservableCollection<ICanvasItem> Items { get; } = [];
 
     public CanvasTextureViewModel TextureViewModel { get; }
 
-    [ObservableProperty]
-    private ICanvasItem? _selectedItem;
+    [ObservableProperty] private ICanvasItem? _selectedItem;
 
-    public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory)
+    private AnimationViewModel? ActiveAnimation { get; set; }
+
+    private IMessenger Messenger { get; }
+
+    public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory, IMessenger messenger)
     {
         var textureVm = textureVmFactory();
-        textureVm.ImageSource = "test-spritesheet.png";
         textureVm.Z = -1;
         TextureViewModel = textureVm;
 
         Items.Add(TextureViewModel);
+        messenger.RegisterAll(this);
+        Messenger = messenger;
     }
 
     partial void OnSelectedItemChanged(ICanvasItem? value)
     {
-        TextureViewModel.ImageSource = value is AnimationFrameViewModel frame ? frame.TextureName : null;
+        TextureViewModel.ImageSource = value is FrameViewModel frame ? frame.TextureName : null;
+        if (value is AchxNodeViewModel node)
+        {
+            Messenger.Send<Messages.CanvasSelectedNewNode>(new(node));
+        }
+
+
+        foreach (var item in Items.Where(x => x is not CanvasTextureViewModel))
+        {
+            item.Z = item == value ? 1 : 0;
+        }
     }
-}
 
-public interface ICanvasItem
-{
-    double X { get; set; }
-    double Y { get; set; }
-    double? Width { get; set; }
-    double? Height { get; set; }
-    double Z { get; set; }
-    bool IsDragEnabled { get; set; }
-    bool IsResizeEnabled { get; set; }
-}
-
-public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
-{
-    [ObservableProperty]
-    private double _x;
-
-    [ObservableProperty]
-    private double _y;
-
-    [ObservableProperty]
-    private double _z;
-
-    [ObservableProperty]
-    private double? _width;
-
-    [ObservableProperty]
-    private double? _height;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Image))]
-    private string? _imageSource;
-
-    public Bitmap? Image => ImageSource is not null ? BitmapBank.Get(ImageSource) : null;
-
-    public bool IsDragEnabled { get; set; } = false;
-    public bool IsResizeEnabled { get; set; } = false;
-
-    private IBitmapBank BitmapBank { get; }
-
-    public CanvasTextureViewModel(IBitmapBank bitmapBank)
+    void IRecipient<Messages.SelectedNodeChanged>.Receive(Messages.SelectedNodeChanged message)
     {
-        BitmapBank = bitmapBank;
+        SelectedItem = message.Node as ICanvasItem;
+    }
+
+    void IRecipient<Messages.ActiveAnimationChanged>.Receive(Messages.ActiveAnimationChanged message)
+    {
+        Items.Clear();
+        Items.Add(TextureViewModel);
+
+        if (ActiveAnimation is not null)
+        {
+            ActiveAnimation.Frames.CollectionChanged -= Animation_FramesChanged;
+        }
+
+        if (message.AnimationViewModel is { } animation)
+        {
+            foreach (FrameViewModel frame in animation.Frames)
+            {
+                Items.Add(frame);
+            }
+
+            animation.Frames.CollectionChanged += Animation_FramesChanged;
+        }
+
+        ActiveAnimation = message.AnimationViewModel;
+        TextureViewModel.ImageSource = ActiveAnimation?.Frames.FirstOrDefault()?.TextureName;
+
+        void Animation_FramesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (var frame in e.NewItems?.Cast<FrameViewModel>() ?? [])
+            {
+                Items.Add(frame);
+            }
+
+            foreach (var frame in e.OldItems?.Cast<FrameViewModel>() ?? [])
+            {
+                Items.Remove(frame);
+            }
+        }
     }
 }
+
+public partial class Messages
+{
+    public record CanvasSelectedNewNode(AchxNodeViewModel Node);
+}
+
+
+

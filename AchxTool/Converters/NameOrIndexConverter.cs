@@ -4,6 +4,7 @@ using Avalonia.Data.Converters;
 using System.Globalization;
 
 using AchxTool.ViewModels;
+using AchxTool.ViewModels.Nodes;
 
 namespace AchxTool.Converters;
 public class NameOrIndexConverter : IMultiValueConverter
@@ -27,17 +28,17 @@ public class NameOrIndexConverter : IMultiValueConverter
         {
             index = node switch
             {
-                AnimationChainViewModel => topLevelNodes.IndexOf(node),
-                AnimationFrameViewModel frame => FindFrameIndex(frame),
+                AnimationViewModel => topLevelNodes.IndexOf(node),
+                FrameViewModel frame => FindFrameIndex(frame),
                 _ => -1
             };
         }
 
         return parameter is string title && !string.IsNullOrWhiteSpace(title) ? $"{title} - {index}" : $"{index}";
 
-        int FindFrameIndex(AnimationFrameViewModel frame)
+        int FindFrameIndex(FrameViewModel frame)
         {
-            foreach (var chain in topLevelNodes.OfType<AnimationChainViewModel>())
+            foreach (var chain in topLevelNodes.OfType<AnimationViewModel>())
             {
                 if (chain.Frames.IndexOf(frame) is var i && i != -1)
                     return i;

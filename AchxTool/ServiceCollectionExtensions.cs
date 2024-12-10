@@ -15,6 +15,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using AchxTool.Services;
 
 namespace AchxTool;
 
@@ -27,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.Scan<ObservableObject>(typeof(ServiceCollectionExtensions).Assembly,
             static (isp, t) => isp.AddTransient(t));
         services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
+        services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         
         services.AddAchx();
     }

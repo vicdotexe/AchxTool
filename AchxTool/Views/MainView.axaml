@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
              d:DesignHeight="450"
@@ -27,8 +28,8 @@
     <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
     <converters:IsTypeConverter x:Key="IsTypeConverter" />
     <converters:ScaleInverterConverter x:Key="ScaleInverterConverter" />
-    <converters:OppositeSignConverter x:Key="OppositeSignConverter"></converters:OppositeSignConverter>
-    <converters:FrameToRectConverter x:Key="FrameToRectConverter"></converters:FrameToRectConverter>
+    <converters:OppositeSignConverter x:Key="OppositeSignConverter" />
+    <converters:FrameToRectConverter x:Key="FrameToRectConverter" />
   </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="canvasItems|FrameCarvingCanvas">
@@ -94,7 +95,7 @@
           </Style>
         </TreeView.Styles>
         <TreeView.DataTemplates>
-          <TreeDataTemplate DataType="{x:Type vm:AnimationChainViewModel}" ItemsSource="{Binding Frames}">
+          <TreeDataTemplate DataType="{x:Type nodes:AnimationViewModel}" ItemsSource="{Binding Frames}">
             <TextBlock>
               <TextBlock.Text>
                 <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Animation">
@@ -110,7 +111,7 @@
               </TextBlock.ContextFlyout>
             </TextBlock>
           </TreeDataTemplate>
-          <TreeDataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+          <TreeDataTemplate DataType="{x:Type vm:FrameViewModel}">
             <TextBlock>
               <TextBlock.Text>
                 <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">
@@ -136,33 +137,32 @@
           <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
             <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
             <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
+            <Setter Property="ZIndex" Value="{Binding Z}" />
             <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
             <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
             <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
+            <Setter Property="IsSelectionEnabled" Value="{Binding IsSelectionEnabled}" />
           </Style>
 
           <Style Selector="Rectangle">
-            <Setter Property="Stroke" Value="Black" />
+            <Setter Property="Stroke" Value="White" />
           </Style>
           <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
-            <Setter Property="Stroke" Value="Red" />
+            <Setter Property="Stroke" Value="DodgerBlue" />
           </Style>
           <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
-            <Setter Property="Stroke" Value="Blue" />
+            <Setter Property="Stroke" Value="DeepSkyBlue" />
           </Style>
           <Style Selector="canvasItems|DraggableCanvasItem Thumb">
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-            <Setter Property="RenderTransform">
-
-              <ScaleTransform ScaleX="{Binding $parent[ZoomBorder].ZoomX, Mode=OneWay}" ScaleY="{Binding $parent[ZoomBorder].ZoomY, Mode=OneWay}" />
-
-
-            </Setter>
+            <!--<Setter Property="RenderTransform">
+              <ScaleTransform ScaleX="{Binding $parent[views:MainView].ZoomX, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" ScaleY="{Binding $parent[views:MainView].ZoomY, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" />
+            </Setter>-->
           </Style>
 
         </canvasItems:FrameCarvingCanvas.Styles>
         <canvasItems:FrameCarvingCanvas.DataTemplates>
-          <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+          <DataTemplate DataType="{x:Type vm:FrameViewModel}">
             <Rectangle HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
                        StrokeDashArray="4,2"
@@ -175,11 +175,15 @@
       </canvasItems:FrameCarvingCanvas>
       <GridSplitter Grid.Column="3" />
       <StackPanel Grid.Column="4">
-          <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}" />
-          <Canvas>
-              <Image Source="{Binding AnimationRunner.Image}" Width="128" Height="128" Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}" Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}" Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}">
-              </Image>
-          </Canvas>
+        <views:NodeInspectorControl Grid.Column="4" SelectedNode="{Binding SelectedNode}" />
+        <Canvas>
+          <Image Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}"
+                 Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}"
+                 Width="{Binding AnimationRunner.Image.PixelSize.Width}"
+                 Height="{Binding AnimationRunner.Image.PixelSize.Height}"
+                 Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}"
+                 Source="{Binding AnimationRunner.Image}" />
+        </Canvas>
 
       </StackPanel>
     </Grid>

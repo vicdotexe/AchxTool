@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using AchxTool.ViewModels.Nodes;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AchxTool.ViewModels;
 
-public partial class AnimationFrameViewModel : AchxNodeViewModel, ICanvasItem
+public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
 {
     [ObservableProperty]
     private bool _flipHorizontal;
@@ -42,24 +44,10 @@ public partial class AnimationFrameViewModel : AchxNodeViewModel, ICanvasItem
     private bool _isDragEnabled = true;
 
     [ObservableProperty]
-    private bool _isResizeEnabled;
+    private bool _isResizeEnabled = true;
+
+    [ObservableProperty]
+    private bool _isSelectionEnabled = true;
 
     public ObservableCollection<ColliderNodeViewModel> Colliders { get; } = [];
-
-    public void Select()
-    {
-        IsSelected = true;
-    }
-
-    double? ICanvasItem.Width
-    {
-        get => Width >= 0 ? Width : null;
-        set => Width = value ?? -1;
-    }    
-    
-    double? ICanvasItem.Height
-    {
-        get => Height >= 0 ? Height : null;
-        set => Height = value ?? -1;
-    }
 }

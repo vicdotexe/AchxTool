@@ -12,7 +12,7 @@ namespace AchxTool.Converters
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is AnimationFrameViewModel frame)
+            if (value is FrameViewModel frame)
             {
                 return new RectangleGeometry(new Rect(frame.X, frame.Y, frame.Width, frame.Height));
             }

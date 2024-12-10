@@ -2,6 +2,7 @@
 
 using AchxTool.Behaviors;
 using AchxTool.ViewModels;
+using AchxTool.ViewModels.Nodes;
 
 using Avalonia;
 using Avalonia.Controls;
@@ -57,7 +58,7 @@ public class NodeTreeViewDropHandler : DropHandlerBase
             return false;
         }
 
-        if (sourceContext is AnimationChainViewModel sourceChain && targetNode is AnimationChainViewModel targetChain)
+        if (sourceContext is AnimationViewModel sourceChain && targetNode is AnimationViewModel targetChain)
         {
             SwapItem(vm.Nodes, treeView.Items.IndexOf(sourceChain), treeView.Items.IndexOf(targetChain));
             return true;

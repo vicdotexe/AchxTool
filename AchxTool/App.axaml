@@ -5,6 +5,7 @@
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -19,13 +20,13 @@
           <ControlTemplate>
             <ContentPresenter Content="{TemplateBinding Content}">
               <ContentPresenter.DataTemplates>
-                <DataTemplate DataType="{x:Type vm:AnimationChainViewModel}">
+                <DataTemplate DataType="{x:Type nodes:AnimationViewModel}">
                   <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
                     <TextBlock Grid.Column="0" Text="Name:" />
                     <TextBox Grid.Column="1" Text="{Binding Name}" />
                   </Grid>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type vm:AnimationFrameViewModel}">
+                <DataTemplate DataType="{x:Type vm:FrameViewModel}">
                   <Grid x:Name="MainGrid"
                         Margin="4"
                         ColumnDefinitions="Auto, *"

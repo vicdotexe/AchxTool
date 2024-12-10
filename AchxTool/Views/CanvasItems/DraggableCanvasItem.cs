@@ -34,6 +34,15 @@ public class DraggableCanvasItem : ContentControl
         set => SetValue(IsDragEnabledProperty, value);
     }
 
+    public static readonly StyledProperty<bool> IsSelectionEnabledProperty =
+        AvaloniaProperty.Register<DraggableCanvasItem, bool>(nameof(IsSelectionEnabled), true);
+
+    public bool IsSelectionEnabled
+    {
+        get => GetValue(IsSelectionEnabledProperty);
+        set => SetValue(IsSelectionEnabledProperty, value);
+    }
+
 
     public FrameCarvingCanvas? FrameCarver { get; private set; }
 
@@ -56,7 +65,11 @@ public class DraggableCanvasItem : ContentControl
     {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && FrameCarver is not null)
         {
-            FrameCarver.SelectedItem = Content;
+            if (IsSelectionEnabled)
+            {
+                FrameCarver.SelectedItem = Content;
+            }
+                
             _isDragging = IsDragEnabled;
             _pressedOffset = e.GetPosition(this);
             e.Handled = true;

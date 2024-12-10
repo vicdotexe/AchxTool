@@ -1,7 +1,7 @@
 ﻿using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 
-namespace AchxTool
+namespace AchxTool.Services
 {
     public interface IBitmapBank
     {

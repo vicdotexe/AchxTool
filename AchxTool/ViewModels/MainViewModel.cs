@@ -1,60 +1,60 @@
 ﻿using System.Collections.ObjectModel;
-
-using Avalonia.Input;
-using Avalonia.Xaml.Interactions.DragAndDrop;
-
+using System.Collections.Specialized;
+using System.ComponentModel;
+using AchxTool.Services;
+using AchxTool.ViewModels.Nodes;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IRecipient<Messages.CanvasSelectedNewNode>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
     private AchxNodeViewModel? _selectedNode;
 
-    public AnimationChainViewModel? ActiveAnimation =>
-        SelectedNode is not null ? Nodes.FindParentAnimation(SelectedNode) : null;
+    [ObservableProperty]
+    public AnimationViewModel? _activeAnimation;
 
     public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
 
     public CanvasViewModel CanvasViewModel { get; }
     public AnimationRunnerViewModel AnimationRunner { get; }
+    private IViewModelFactory Factory { get; }
+    private IMessenger Messenger { get; }
+
+    public double ZoomX { get; private set; }
+    public double ZoomY { get; private set; }
+
+    public void SetZoom(double x, double y)
+    {
+        ZoomX = x;
+        ZoomY = y;
+        OnPropertyChanged(nameof(ZoomX));
+        OnPropertyChanged(nameof(ZoomY));
+    }
 
     public MainViewModel(CanvasViewModel canvasViewModel, 
-        Func<AnimationChainViewModel> animationFactory, 
-        Func<AnimationFrameViewModel> frameFactory, 
-        AnimationRunnerViewModel animationRunner)
+        IViewModelFactory factory,
+        AnimationRunnerViewModel animationRunner,
+        IMessenger messenger)
     {
         CanvasViewModel = canvasViewModel;
+        Factory = factory;
         AnimationRunner = animationRunner;
+        Messenger = messenger;
+        messenger.RegisterAll(this);
 
-        List<AchxNodeViewModel> nodes = [..MockData(animationFactory, () =>
+        foreach (AnimationViewModel animation in MockData())
         {
-            var frame = frameFactory();
-            frame.Width = 50;
-            frame.Height = 50;
-            frame.FrameLength = 250;
-            frame.TextureName = "test-spritesheet.png";
-            return frame;
-        })];
-        foreach (var node in nodes)
-        {
-            AddNode(node);
+            AddAnimation(animation);
         }
     }
 
-    private void AddNode(AchxNodeViewModel node)
+    public void AddAnimation(AnimationViewModel animation)
     {
-        Nodes.Add(node);
-        if (node is AnimationChainViewModel chain)
-        {
-            foreach (var frame in chain.Frames)
-            {
-                CanvasViewModel.Items.Add(frame);
-            }
-        }
+        Nodes.Add(animation);
     }
 
     partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
@@ -63,33 +63,56 @@ public partial class MainViewModel : ObservableObject
         {
             node.IsSelected = node == value;
         }
-
-        CanvasViewModel.SelectedItem = value as ICanvasItem;
-        AnimationRunner.ActiveChain = ActiveAnimation;
+        ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
     }
 
-    
-
-    private IEnumerable<AchxNodeViewModel> MockData(Func<AnimationChainViewModel> chain, Func<AnimationFrameViewModel> frame)
+    partial void OnActiveAnimationChanged(AnimationViewModel? value)
     {
-        AchxNodeViewModel idle = chain();
-        idle.Name = "Idle";
+        Messenger.Send<Messages.ActiveAnimationChanged>(new(value));
+    }
+
+    private IEnumerable<AnimationViewModel> MockData()
+    {
+        Func<AnimationViewModel> chain = Factory.NewFactory<AnimationViewModel>();
+
+        const int frameWidth = 128 / 4;
+        const int frameHeight = 128 / 2;
+
+        Func<FrameViewModel> frame = Factory.NewFactory<FrameViewModel>(x =>
+        {
+            x.Width = frameWidth;
+            x.Height = frameHeight;
+            x.TextureName = "test-spritesheet.png";
+            x.FrameLength = 250;
+        });
+
+        AnimationViewModel idle = chain();
+        idle.Name = "Jumping";
         yield return idle;
 
-        AnimationChainViewModel jumping = chain();
-        jumping.Name = "Jumping";
-        jumping.Frames.Add(frame());
-        jumping.Frames.Add(frame());
-        AnimationFrameViewModel peak = frame();
-        peak.Name = "Peak";
-        jumping.Frames.Add(peak);
-        jumping.Frames.Add(frame());
-        jumping.Frames.Add(frame());
+        AnimationViewModel jumping = chain();
+        jumping.Name = "Idle";
+
+
+        int framesPerRow = 4;
+        for (int i = 0; i < 8; i++)
+        {
+            FrameViewModel currentFrame = frame();
+            currentFrame.X = (i % framesPerRow) * frameWidth;
+            currentFrame.Y = (i / framesPerRow) * frameHeight;
+            jumping.Frames.Add(currentFrame);
+        }
+
         yield return jumping;
 
-        AchxNodeViewModel walking = chain();
+        AnimationViewModel walking = chain();
         walking.Name = "Walking";
         yield return walking;
+    }
+
+    void IRecipient<Messages.CanvasSelectedNewNode>.Receive(Messages.CanvasSelectedNewNode message)
+    {
+        SelectedNode = message.Node;
     }
 }
 
@@ -99,7 +122,7 @@ public static class NodeHelpers
     {
         foreach (var node in nodes)
         {
-            if (node is AnimationChainViewModel chain)
+            if (node is AnimationViewModel chain)
             {
                 yield return chain;
                 foreach (var frame in chain.Frames)
@@ -124,24 +147,34 @@ public static class NodeHelpers
 
         return allNodes.FirstOrDefault(n => n switch
         {
-            AnimationChainViewModel chain => chain.Frames.Contains(node),
-            AnimationFrameViewModel frame => frame.Colliders.Contains(node),
-            ColliderNodeViewModel collider => false,
+            AnimationViewModel chain => chain.Frames.Contains(node),
+            FrameViewModel frame => frame.Colliders.Contains(node),
             _ => false
         });
     }
 
-    public static AnimationChainViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
-        AchxNodeViewModel node)
+    public static AnimationViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
+        AchxNodeViewModel node, bool includeSelf = true)
     {
+        if (node is AnimationViewModel self && includeSelf)
+        {
+            return self;
+        }
+
         List<AchxNodeViewModel> allNodes = [..nodes.Flatten()];
 
         return allNodes.FindDirectParent(node) switch
         {
-            AnimationChainViewModel chain => chain,
-            AnimationFrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationChainViewModel,
+            AnimationViewModel animation => animation,
+            FrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationViewModel,
             _ => null
         };
     }
+}
 
+public partial class Messages
+{
+    public record SelectedNodeChanged(AchxNodeViewModel? Node);
+
+    public record ActiveAnimationChanged(AnimationViewModel? AnimationViewModel);
 }
