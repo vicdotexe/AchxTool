@@ -1,0 +1,49 @@
+<UserControl x:Class="AchxTool.Views.AnimationPreview"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:AchxTool.ViewModels"
+             xmlns:views="clr-namespace:AchxTool.Views"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:DataType="viewModels:AnimationRunnerViewModel"
+             mc:Ignorable="d">
+  <Grid RowDefinitions="Auto, *">
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+      <ColorPicker x:Name="BackgroundColorPicker"
+                   Grid.Column="0"
+                   Color="Black" />
+      <Slider Grid.Column="1"
+              IsSnapToTickEnabled="True"
+              Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
+              Minimum="0"
+              TickFrequency="1"
+              Value="{Binding CurrentIndex, Mode=TwoWay}" />
+      <NumericUpDown Grid.Column="2"
+                     Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
+                     Minimum="0"
+                     Value="{Binding CurrentIndex, Mode=TwoWay}" />
+      <ToggleButton Grid.Column="3" IsChecked="{Binding !IsRunning, Mode=TwoWay}">
+        <Panel>
+          <avalonia:MaterialIcon IsVisible="{Binding IsRunning}" Kind="Play" />
+          <avalonia:MaterialIcon IsVisible="{Binding !IsRunning}" Kind="Pause" />
+        </Panel>
+      </ToggleButton>
+    </Grid>
+    <Border Grid.Row="1">
+      <ZoomBorder Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
+                  ClipToBounds="True"
+                  Stretch="UniformToFill"
+                  ZoomSpeed="1.2">
+        <views:SpriteControl Width="{Binding CurrentFrame.Width}"
+                             Height="{Binding CurrentFrame.Height}"
+                             Image="{Binding Image}"
+                             X="{Binding CurrentFrame.X}"
+                             Y="{Binding CurrentFrame.Y}" />
+      </ZoomBorder>
+    </Border>
+
+  </Grid>
+</UserControl>

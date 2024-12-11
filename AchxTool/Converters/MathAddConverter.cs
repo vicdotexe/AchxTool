@@ -12,6 +12,10 @@ public class MathAddConverter : IValueConverter
     {
         // For add this is simple. just return the sum of the value and the parameter.
         // You may want to validate value and parameter in a real world App
+        if (value is int integer)
+        {
+            return integer + System.Convert.ToInt32(parameter);
+        }
         return (decimal?)value + (decimal?)parameter;
     }
 

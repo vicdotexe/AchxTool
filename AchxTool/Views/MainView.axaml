@@ -5,6 +5,7 @@
              xmlns:behaviors="clr-namespace:AchxTool.Behaviors"
              xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
+             xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
@@ -24,29 +25,27 @@
   </Design.DataContext>
   <UserControl.Resources>
     <converters:NameOrIndexConverter x:Key="NameOrIndexConverter" />
-    <converters:IsTypeConverter x:Key="IsTypeConverter" />
-    <converters:ScaleInverterConverter x:Key="ScaleInverterConverter" />
-    <converters:OppositeSignConverter x:Key="OppositeSignConverter" />
-    <converters:FrameToRectConverter x:Key="FrameToRectConverter" />
+    <converters1:ColorToBrushConverter x:Key="ColorToBrushConverter" />
   </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="canvasItems|FrameCarvingCanvas">
       <Setter Property="Template">
         <ControlTemplate>
-            <ZoomBorder ClipToBounds="True"
-                        ZoomSpeed="1.2"
-                        Stretch="None">
+          <Border Background="{TemplateBinding Background}">
+            <ZoomBorder ClipToBounds="False"
+                        Stretch="None"
+                        ZoomSpeed="1.2">
               <ItemsPresenter>
                 <ItemsPresenter.ItemsPanel>
                   <ItemsPanelTemplate>
-                    <Canvas VerticalAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
-                            UseLayoutRounding="False" />
+                    <Canvas ClipToBounds="False" UseLayoutRounding="False" />
 
                   </ItemsPanelTemplate>
                 </ItemsPresenter.ItemsPanel>
               </ItemsPresenter>
             </ZoomBorder>
+          </Border>
+
         </ControlTemplate>
       </Setter>
     </Style>
@@ -119,84 +118,78 @@
       <GridSplitter Grid.Column="1" />
 
 
-      <canvasItems:FrameCarvingCanvas Grid.Column="2"
-                                      Background="Green"
-                                      DataContext="{Binding CanvasViewModel}"
-                                      ItemsSource="{Binding Items}"
-                                      SelectedItem="{Binding SelectedItem}">
-        <canvasItems:FrameCarvingCanvas.Styles>
+      <Grid Grid.Column="2" RowDefinitions="Auto,*">
+        <StackPanel Grid.Row="0">
+          <ColorPicker x:Name="BackgroundColorPicker" Color="#3B3626" />
+        </StackPanel>
+        <canvasItems:FrameCarvingCanvas Grid.Row="1"
+                                        Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
+                                        DataContext="{Binding CanvasViewModel}"
+                                        ItemsSource="{Binding Items}"
+                                        SelectedItem="{Binding SelectedItem}">
+          <canvasItems:FrameCarvingCanvas.Styles>
 
-          <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
-            <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
-            <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
-            <Setter Property="ZIndex" Value="{Binding Z}" />
-            <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
-            <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
-            <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
-            <Setter Property="IsSelectionEnabled" Value="{Binding IsSelectionEnabled}" />
-          </Style>
+            <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
+              <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
+              <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
+              <Setter Property="ZIndex" Value="{Binding Z}" />
+              <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
+              <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
+              <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
+              <Setter Property="IsSelectionEnabled" Value="{Binding IsSelectionEnabled}" />
+            </Style>
 
-          <Style Selector="Rectangle">
-            <Setter Property="Stroke" Value="White" />
-          </Style>
-          <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
-            <Setter Property="Stroke" Value="DodgerBlue" />
-          </Style>
-          <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
-            <Setter Property="Stroke" Value="DeepSkyBlue" />
-          </Style>
-          <Style Selector="canvasItems|DraggableCanvasItem Thumb">
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-            <!--<Setter Property="RenderTransform">
+            <Style Selector="Rectangle">
+              <Setter Property="Stroke" Value="White" />
+            </Style>
+            <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
+              <Setter Property="Stroke" Value="DodgerBlue" />
+            </Style>
+            <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
+              <Setter Property="Stroke" Value="DeepSkyBlue" />
+            </Style>
+            <Style Selector="canvasItems|DraggableCanvasItem Thumb">
+              <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+              <!--<Setter Property="RenderTransform">
               <ScaleTransform ScaleX="{Binding $parent[views:MainView].ZoomX, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" ScaleY="{Binding $parent[views:MainView].ZoomY, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" />
             </Setter>-->
-          </Style>
+            </Style>
 
-        </canvasItems:FrameCarvingCanvas.Styles>
-        <canvasItems:FrameCarvingCanvas.DataTemplates>
-          <DataTemplate DataType="{x:Type vm:FrameViewModel}">
-            <Rectangle HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch"
-                       StrokeDashArray="4,2"
-                       StrokeThickness="1" />
-          </DataTemplate>
-          <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-            <Image Source="{Binding Image}" RenderOptions.BitmapInterpolationMode="None"/>
-          </DataTemplate>
-        </canvasItems:FrameCarvingCanvas.DataTemplates>
-      </canvasItems:FrameCarvingCanvas>
+          </canvasItems:FrameCarvingCanvas.Styles>
+          <canvasItems:FrameCarvingCanvas.DataTemplates>
+            <DataTemplate DataType="{x:Type vm:FrameViewModel}">
+              <Rectangle HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         StrokeDashArray="4,2"
+                         StrokeThickness="1" />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
+              <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Image}" />
+            </DataTemplate>
+          </canvasItems:FrameCarvingCanvas.DataTemplates>
+        </canvasItems:FrameCarvingCanvas>
+      </Grid>
+
       <GridSplitter Grid.Column="3" />
-      <Grid RowDefinitions="2*,Auto,*" Grid.Column="4">
-          <Grid.Styles>
-              <Styles>
-                  <Style Selector="GridSplitter">
-                      <Setter Property="Height" Value="4" />
-                      <Setter Property="Width" Value="NaN"></Setter>
-                  </Style>
-                  </Styles>
-              </Grid.Styles>
-                  <views:NodeInspectorControl SelectedNode="{Binding SelectedNode}" />
-        <GridSplitter Grid.Row="1"/>
-        <ZoomBorder ClipToBounds="True"
-                    Grid.Row="2"
-                    ZoomSpeed="1.2"
-                    Background="Black"
-                    Stretch="None"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch">
-            <Canvas RenderOptions.BitmapInterpolationMode="None">
-                <Image Canvas.Left="{Binding AnimationRunner.CurrentFrame.X, Converter={StaticResource OppositeSignConverter}}"
-                       Canvas.Top="{Binding AnimationRunner.CurrentFrame.Y, Converter={StaticResource OppositeSignConverter}}"
-                       Width="{Binding AnimationRunner.Image.PixelSize.Width}"
-                       Height="{Binding AnimationRunner.Image.PixelSize.Height}"
-                       Clip="{Binding AnimationRunner.CurrentFrame, Converter={StaticResource FrameToRectConverter}}"
-                       Source="{Binding AnimationRunner.Image}" />
-            </Canvas>
+      <Grid Grid.Column="4" RowDefinitions="2*,Auto,*">
+        <Grid.Styles>
+          <Styles>
+            <Style Selector="GridSplitter">
+              <Setter Property="Height" Value="4" />
+              <Setter Property="Width" Value="NaN" />
+            </Style>
+          </Styles>
+        </Grid.Styles>
+        <views:NodeInspectorControl SelectedNode="{Binding SelectedNode}" />
+        <GridSplitter Grid.Row="1" />
 
-        </ZoomBorder>
+        <views:AnimationPreview Grid.Row="2"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                DataContext="{Binding AnimationRunner}" />
 
 
-    </Grid>
+      </Grid>
     </Grid>
   </Grid>
 

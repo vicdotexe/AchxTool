@@ -17,20 +17,27 @@ namespace AchxTool.ViewModels;
 public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Messages.ActiveAnimationChanged>
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalFrames))]
     private AnimationViewModel? _activeAnimation;
 
+    public FrameViewModel? CurrentFrame => ActiveAnimation?.Frames.ElementAtOrDefault(CurrentIndex);
+
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CurrentFrame))]
     [NotifyPropertyChangedFor(nameof(Image))]
-    private FrameViewModel? _currentFrame;
+    private int _currentIndex;
+
+    [ObservableProperty] 
+    private bool _isRunning;
+
+    public int TotalFrames => ActiveAnimation?.Frames.Count ?? 0;
+
+    public Bitmap? Image => CurrentFrame?.TextureName is not null ? BitmapBank.Get(CurrentFrame.TextureName) : null;
 
     private Stopwatch StopWatch { get; }
 
     private double _lastElapsed;
     private double _elapsedSinceFrameStart;
-    private int _currentIndex;
-    private int _totalFrames;
-
-    public Bitmap? Image => CurrentFrame?.TextureName is not null ? BitmapBank.Get(CurrentFrame.TextureName) : null;
 
     private IBitmapBank BitmapBank { get; }
 
@@ -60,17 +67,10 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
             {
                 var remainder = _elapsedSinceFrameStart - CurrentFrame.FrameLength;
 
-                _currentIndex++;
-                if (_currentIndex >= _totalFrames)
-                {
-                    _currentIndex = 0;
-                }
-
-                CurrentFrame = ActiveAnimation.Frames[_currentIndex];
+                CurrentIndex = CurrentIndex >= TotalFrames - 1 ? 0 : CurrentIndex + 1;
                 _elapsedSinceFrameStart = remainder;
             }
         }
-
         _lastElapsed = StopWatch.ElapsedMilliseconds;
     }
 
@@ -86,21 +86,32 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
             newValue.Frames.CollectionChanged += FramesOnCollectionChanged;
         }
 
-        ActiveAnimation = newValue;
         Restart();
 
         void FramesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            _totalFrames = (sender as IList)?.Count ?? 0;
+            OnPropertyChanged(nameof(TotalFrames));
             Restart();
+        }
+    }
+
+    partial void OnIsRunningChanged(bool value)
+    {
+        if (value)
+        {
+            StopWatch.Reset();
+        }
+        else
+        {
+            _lastElapsed = 0;
+            _elapsedSinceFrameStart = 0;
+            StopWatch.Start();
         }
     }
 
     private void Restart()
     {
-        _totalFrames = ActiveAnimation?.Frames.Count ?? 0;
-        CurrentFrame = ActiveAnimation?.Frames.FirstOrDefault();
-        _currentIndex = 0;
+        CurrentIndex = 0;
         _lastElapsed = 0;
         _elapsedSinceFrameStart = 0;
         StopWatch.Restart();

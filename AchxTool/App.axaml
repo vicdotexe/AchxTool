@@ -1,19 +1,26 @@
 <Application x:Class="AchxTool.App"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
+             xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
+             xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
-             xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
   <Application.Resources>
     <converters:MathAddConverter x:Key="MathAddConverter" />
+    <converters1:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+    <converters:IsTypeConverter x:Key="IsTypeConverter" />
   </Application.Resources>
+
   <Application.Styles>
     <SimpleTheme />
+    <avalonia:MaterialIconStyles />
+    <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml" />
     <Style Selector="views|NodeInspectorControl">
       <Setter Property="Template">
         <Setter.Value>
@@ -140,44 +147,44 @@
               <Thumb Name="TopLeftHandle"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Top"
-                     Cursor="TopLeftCorner" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="TopLeftCorner" />
               <Thumb Name="TopRightHandle"
                      HorizontalAlignment="Right"
                      VerticalAlignment="Top"
-                     Cursor="TopRightCorner" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="TopRightCorner" />
               <Thumb Name="BottomLeftHandle"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Bottom"
-                     Cursor="BottomLeftCorner" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="BottomLeftCorner" />
               <Thumb Name="BottomRightHandle"
                      HorizontalAlignment="Right"
                      VerticalAlignment="Bottom"
-                     Cursor="BottomRightCorner" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="BottomRightCorner" />
 
               <Thumb Name="TopHandle"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Top"
-                     Cursor="SizeNorthSouth" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="SizeNorthSouth" />
               <Thumb Name="LeftHandle"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Center"
-                     Cursor="SizeWestEast" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="SizeWestEast" />
               <Thumb Name="RightHandle"
                      HorizontalAlignment="Right"
                      VerticalAlignment="Center"
-                     Cursor="SizeWestEast" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="SizeWestEast" />
               <Thumb Name="BottomHandle"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Bottom"
-                     Cursor="SizeNorthSouth" 
-                     Classes.isThumb="True"/>
+                     Classes.isThumb="True"
+                     Cursor="SizeNorthSouth" />
             </Grid>
 
           </Grid>
