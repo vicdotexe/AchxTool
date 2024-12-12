@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using AchxTool.Models;
 using AchxTool.ViewModels.Nodes;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -20,7 +21,7 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     private bool _flipVertical;
 
     [ObservableProperty] 
-    private float _frameLength;
+    private double _frameLength;
 
     [ObservableProperty] 
     private string? _textureName;
@@ -50,4 +51,10 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     private bool _isSelectionEnabled = true;
 
     public ObservableCollection<ColliderNodeViewModel> Colliders { get; } = [];
+
+    public void Load(FrameModel model)
+    {
+
+
+    }
 }

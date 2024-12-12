@@ -7,6 +7,7 @@ using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Avalonia.Platform.Storage;
 
 namespace AchxTool.Views;
 
@@ -70,6 +71,23 @@ public partial class MainView : UserControl
             {
                 vm.CanvasViewModel.SelectedItem = canvasItem;
             }
+        }
+    }
+
+    private async void MenuItem_Load_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+
+        // Start async operation to open the dialog.
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open Text File",
+            AllowMultiple = false
+        });
+
+        if (files.FirstOrDefault() is { } file && DataContext is MainViewModel vm)
+        {
+            vm.LoadProject(file.Path.AbsolutePath);
         }
     }
 }

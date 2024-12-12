@@ -31,4 +31,8 @@
     <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="HotAvalonia" />
     <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="All" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
 </Project>

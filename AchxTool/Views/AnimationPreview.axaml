@@ -38,7 +38,7 @@
     <Border Grid.Row="1">
       <ZoomBorder Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
                   ClipToBounds="True"
-                  Stretch="UniformToFill"
+                  Stretch="None"
                   ZoomSpeed="1.2">
         <views:SpriteControl Width="{Binding CurrentFrame.Width}"
                              Height="{Binding CurrentFrame.Height}"

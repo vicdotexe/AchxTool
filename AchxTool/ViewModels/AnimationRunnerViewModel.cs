@@ -63,7 +63,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
         {
             return;
         }
-        double elapsed = StopWatch.ElapsedMilliseconds - _lastElapsed;
+        double elapsed = (StopWatch.ElapsedMilliseconds - _lastElapsed) / 1000;
         _elapsedSinceFrameStart += elapsed;
 
         if (CurrentFrame is not null && ActiveAnimation is not null)

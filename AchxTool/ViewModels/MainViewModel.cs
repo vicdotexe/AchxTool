@@ -3,12 +3,16 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using AchxTool.Services;
 using AchxTool.ViewModels.Nodes;
+
+using Avalonia;
+using Avalonia.Controls;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class MainViewModel : ObservableObject, IRecipient<Messages.CanvasSelectedNewNode>
+public partial class MainViewModel : ObservableObject, IRecipient<Messages.CanvasSelectedNewNode>, IRecipient<Messages.ProjectLoaded>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
@@ -23,6 +27,7 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
     public AnimationRunnerViewModel AnimationRunner { get; }
     private IViewModelFactory Factory { get; }
     private IMessenger Messenger { get; }
+    private IProjectService ProjectService { get; }
 
     public double ZoomX { get; private set; }
     public double ZoomY { get; private set; }
@@ -38,12 +43,15 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
     public MainViewModel(CanvasViewModel canvasViewModel, 
         IViewModelFactory factory,
         AnimationRunnerViewModel animationRunner,
-        IMessenger messenger)
+        IMessenger messenger,
+        IProjectService projectService)
     {
         CanvasViewModel = canvasViewModel;
         Factory = factory;
         AnimationRunner = animationRunner;
         Messenger = messenger;
+        ProjectService = projectService;
+
         messenger.RegisterAll(this);
 
         foreach (AnimationViewModel animation in MockData())
@@ -84,7 +92,7 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
             x.Width = frameWidth;
             x.Height = frameHeight;
             x.TextureName = "test-spritesheet.png";
-            x.FrameLength = 250;
+            x.FrameLength = 0.15;
         });
 
         AnimationViewModel idle = chain();
@@ -114,6 +122,24 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
     void IRecipient<Messages.CanvasSelectedNewNode>.Receive(Messages.CanvasSelectedNewNode message)
     {
         SelectedNode = message.Node;
+    }
+
+    void IRecipient<Messages.ProjectLoaded>.Receive(Messages.ProjectLoaded message)
+    {
+        Nodes.Clear();
+        foreach (AnimationViewModel node in message.Project.Animations)
+        {
+            Nodes.Add(node);
+        }
+    }
+
+    public async void LoadProject(string filePath)
+    {
+        ProjectViewModel? project = await ProjectService.LoadProjectAsync(filePath);
+        if (project is not null)
+        {
+            ProjectService.CurrentProject = project;
+        }
     }
 }
 
@@ -178,4 +204,5 @@ public partial class Messages
     public record SelectedNodeChanged(AchxNodeViewModel? Node);
 
     public record ActiveAnimationChanged(AnimationViewModel? AnimationViewModel);
+    public record ProjectLoaded(ProjectViewModel Project);
 }

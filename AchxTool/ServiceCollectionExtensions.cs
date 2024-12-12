@@ -28,8 +28,10 @@ public static class ServiceCollectionExtensions
         services.Scan<ObservableObject>(typeof(ServiceCollectionExtensions).Assembly,
             static (isp, t) => isp.AddTransient(t));
         services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
+
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        
+        services.AddSingleton<IProjectService, ProjectService>();
+
         services.AddAchx();
     }
     private static void AddAchx(this IServiceCollection services)

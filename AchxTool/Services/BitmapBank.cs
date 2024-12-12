@@ -1,5 +1,9 @@
-﻿using Avalonia.Media.Imaging;
+﻿using AchxTool.ViewModels;
+
+using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.Services
 {
@@ -8,9 +12,15 @@ namespace AchxTool.Services
         Bitmap Get(string filePath);
     }
 
-    public class BitmapBank : IBitmapBank
+    public class BitmapBank : IBitmapBank, IRecipient<Messages.ProjectLoaded>
     {
         private Dictionary<string, Bitmap> Bitmaps { get; } = [];
+        private DirectoryInfo? ParentDirectory { get; set; }
+
+        public BitmapBank(IMessenger messenger)
+        {
+            messenger.RegisterAll(this);
+        }
 
         public Bitmap Get(string filePath)
         {
@@ -21,7 +31,8 @@ namespace AchxTool.Services
 
             try
             {
-                bitmap = new Bitmap(filePath);
+                string actualPath = Path.Combine(ParentDirectory?.FullName ?? "", filePath);
+                bitmap = new Bitmap(actualPath);
                 Bitmaps[filePath] = bitmap;
                 return bitmap;
             }
@@ -43,5 +54,24 @@ namespace AchxTool.Services
                 return null;
             }
         }
+
+        void IRecipient<Messages.ProjectLoaded>.Receive(Messages.ProjectLoaded message)
+        {
+            ParentDirectory = new FileInfo(message.Project.FilePath!).Directory;
+
+            foreach (var animation in message.Project.Animations)
+            {
+                foreach (var frame in animation.Frames)
+                {
+                    if (frame.TextureName is {} path)
+                    {
+                        _ = Get(path);
+                    }
+                    
+                }
+            }
+        }
     }
+
+
 }
