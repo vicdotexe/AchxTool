@@ -14,7 +14,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Messages.ActiveAnimationChanged>
+public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Messages.ActiveAnimationChanged>, IRecipient<Messages.SelectedNodeChanged>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalFrames))]
@@ -28,7 +28,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
     private int _currentIndex;
 
     [ObservableProperty] 
-    private bool _isRunning;
+    private bool _isRunning = true;
 
     public int TotalFrames => ActiveAnimation?.Frames.Count ?? 0;
 
@@ -49,6 +49,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
         {
             Interval = TimeSpan.FromMilliseconds(16),
         };
+
         timer.Tick += TimerOnTick;
         timer.Start();
         StopWatch = Stopwatch.StartNew();
@@ -58,6 +59,10 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
     
     private void TimerOnTick(object? sender, EventArgs e)
     {
+        if (!IsRunning)
+        {
+            return;
+        }
         double elapsed = StopWatch.ElapsedMilliseconds - _lastElapsed;
         _elapsedSinceFrameStart += elapsed;
 
@@ -97,7 +102,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
 
     partial void OnIsRunningChanged(bool value)
     {
-        if (value)
+        if (!value)
         {
             StopWatch.Reset();
         }
@@ -120,5 +125,18 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
     void IRecipient<Messages.ActiveAnimationChanged>.Receive(Messages.ActiveAnimationChanged message)
     {
         ActiveAnimation = message.AnimationViewModel;
+    }
+
+    void IRecipient<Messages.SelectedNodeChanged>.Receive(Messages.SelectedNodeChanged message)
+    {
+        if (ActiveAnimation is null || IsRunning)
+        {
+            return;
+        }
+
+        if (message.Node is FrameViewModel frame && ActiveAnimation.Frames.IndexOf(frame) is var index and >= 0)
+        {
+            CurrentIndex = index;
+        }
     }
 }

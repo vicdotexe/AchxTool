@@ -64,6 +64,7 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
             node.IsSelected = node == value;
         }
         ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
+        Messenger.Send<Messages.SelectedNodeChanged>(new(value));
     }
 
     partial void OnActiveAnimationChanged(AnimationViewModel? value)

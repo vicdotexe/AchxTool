@@ -37,7 +37,11 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.Sel
 
     partial void OnSelectedItemChanged(ICanvasItem? value)
     {
-        TextureViewModel.ImageSource = value is FrameViewModel frame ? frame.TextureName : null;
+        if (value is FrameViewModel frame && TextureViewModel.ImageSource != frame.TextureName)
+        {
+            TextureViewModel.ImageSource = frame.TextureName;
+        }
+
         if (value is AchxNodeViewModel node)
         {
             Messenger.Send<Messages.CanvasSelectedNewNode>(new(node));

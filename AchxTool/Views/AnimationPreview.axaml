@@ -16,19 +16,22 @@
                    Grid.Column="0"
                    Color="Black" />
       <Slider Grid.Column="1"
+              VerticalAlignment="Center"
               IsSnapToTickEnabled="True"
               Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
               Minimum="0"
               TickFrequency="1"
+              GotFocus="InputElement_OnGotFocus"
               Value="{Binding CurrentIndex, Mode=TwoWay}" />
       <NumericUpDown Grid.Column="2"
                      Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
                      Minimum="0"
-                     Value="{Binding CurrentIndex, Mode=TwoWay}" />
-      <ToggleButton Grid.Column="3" IsChecked="{Binding !IsRunning, Mode=TwoWay}">
+                     Value="{Binding CurrentIndex, Mode=TwoWay}"
+                     GotFocus="InputElement_OnGotFocus"/>
+      <ToggleButton Grid.Column="3" IsChecked="{Binding IsRunning, Mode=TwoWay}">
         <Panel>
-          <avalonia:MaterialIcon IsVisible="{Binding IsRunning}" Kind="Play" />
-          <avalonia:MaterialIcon IsVisible="{Binding !IsRunning}" Kind="Pause" />
+          <avalonia:MaterialIcon IsVisible="{Binding !IsRunning}" Kind="Play" />
+          <avalonia:MaterialIcon IsVisible="{Binding IsRunning}" Kind="Pause" />
         </Panel>
       </ToggleButton>
     </Grid>
@@ -41,7 +44,9 @@
                              Height="{Binding CurrentFrame.Height}"
                              Image="{Binding Image}"
                              X="{Binding CurrentFrame.X}"
-                             Y="{Binding CurrentFrame.Y}" />
+                             Y="{Binding CurrentFrame.Y}" 
+                             FlipHorizontal="{Binding CurrentFrame.FlipHorizontal}"
+                             FlipVertical="{Binding CurrentFrame.FlipVertical}"/>
       </ZoomBorder>
     </Border>
 
