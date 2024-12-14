@@ -10,24 +10,22 @@
              d:DesignWidth="800"
              x:DataType="viewModels:AnimationRunnerViewModel"
              mc:Ignorable="d">
-  <Grid RowDefinitions="Auto, *">
-    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-      <ColorPicker x:Name="BackgroundColorPicker"
-                   Grid.Column="0"
-                   Color="Black" />
+  <Grid RowDefinitions="Auto, *, Auto">
+    <Grid Margin="2" ColumnDefinitions="Auto,*,Auto,Auto">
       <Slider Grid.Column="1"
               VerticalAlignment="Center"
+              GotFocus="FrameSlider_Focused"
               IsSnapToTickEnabled="True"
               Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
               Minimum="0"
               TickFrequency="1"
-              GotFocus="InputElement_OnGotFocus"
               Value="{Binding CurrentIndex, Mode=TwoWay}" />
       <NumericUpDown Grid.Column="2"
+                     Height="24"
+                     Padding="0"
                      Maximum="{Binding TotalFrames, Converter={StaticResource MathAddConverter}, ConverterParameter=-1}"
                      Minimum="0"
-                     Value="{Binding CurrentIndex, Mode=TwoWay}"
-                     GotFocus="InputElement_OnGotFocus"/>
+                     Value="{Binding CurrentIndex, Mode=TwoWay}" />
       <ToggleButton Grid.Column="3" IsChecked="{Binding IsRunning, Mode=TwoWay}">
         <Panel>
           <avalonia:MaterialIcon IsVisible="{Binding !IsRunning}" Kind="Play" />
@@ -35,20 +33,51 @@
         </Panel>
       </ToggleButton>
     </Grid>
-    <Border Grid.Row="1">
-      <ZoomBorder Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
+    <Grid Grid.Row="1" Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}">
+      <views:PanningGrid IsVisible="{Binding #Guides.IsChecked}" Offset="{Binding #Sprite.RenderTransform}" />
+      <ZoomBorder x:Name="ZoomBorder"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
                   ClipToBounds="True"
+                  EnableConstrains="True"
                   Stretch="None"
                   ZoomSpeed="1.2">
-        <views:SpriteControl Width="{Binding CurrentFrame.Width}"
-                             Height="{Binding CurrentFrame.Height}"
-                             Image="{Binding Image}"
-                             X="{Binding CurrentFrame.X}"
-                             Y="{Binding CurrentFrame.Y}" 
-                             FlipHorizontal="{Binding CurrentFrame.FlipHorizontal}"
-                             FlipVertical="{Binding CurrentFrame.FlipVertical}"/>
-      </ZoomBorder>
-    </Border>
+        <Canvas x:Name="Sprite">
+          <views:SpriteControl Width="{Binding CurrentFrame.Width}"
+                               Height="{Binding CurrentFrame.Height}"
+                               FlipHorizontal="{Binding CurrentFrame.FlipHorizontal}"
+                               FlipVertical="{Binding CurrentFrame.FlipVertical}"
+                               Image="{Binding Image}"
+                               X="{Binding CurrentFrame.X}"
+                               Y="{Binding CurrentFrame.Y}" />
+        </Canvas>
 
+      </ZoomBorder>
+
+    </Grid>
+    <StackPanel Grid.Row="2" Orientation="Horizontal">
+      <CheckBox x:Name="Guides"
+                Margin="2"
+                Content="Guides" />
+      <StackPanel Margin="4,0" Orientation="Horizontal">
+        <Button Width="16"
+                Height="16"
+                Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}">
+          <Button.Flyout>
+            <Flyout>
+              <ColorView x:Name="BackgroundColorPicker" Color="Black" />
+            </Flyout>
+          </Button.Flyout>
+        </Button>
+        <TextBlock Margin="4,0,0,0"
+                   VerticalAlignment="Center"
+                   Text="Background" />
+      </StackPanel>
+
+      <Button Background="Transparent"
+              BorderThickness="0"
+              Content="{avalonia:MaterialIconExt Kind=SetCenter}" />
+      <views:IconButton Icon="SetCenter" />
+    </StackPanel>
   </Grid>
 </UserControl>

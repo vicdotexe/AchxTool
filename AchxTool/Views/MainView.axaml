@@ -51,12 +51,12 @@
     </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto,*">
-      <Menu>
-          <MenuItem Header="File">
-              <MenuItem Header="Load" Click="MenuItem_Load_OnClick"></MenuItem>
-          </MenuItem>
-      </Menu>
-      <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,250">
+    <Menu>
+      <MenuItem Header="File">
+        <MenuItem Click="MenuItem_Load_OnClick" Header="Load" />
+      </MenuItem>
+    </Menu>
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,250">
       <Grid.Styles>
         <Styles>
           <Style Selector="GridSplitter">

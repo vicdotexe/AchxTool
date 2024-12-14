@@ -5,6 +5,7 @@
              xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
+             xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
@@ -13,6 +14,7 @@
 
   <Application.Resources>
     <converters:MathAddConverter x:Key="MathAddConverter" />
+    <converters:MathMultiplyConverter x:Key="MathMultiplyConverter"></converters:MathMultiplyConverter>
     <converters1:ColorToBrushConverter x:Key="ColorToBrushConverter" />
     <converters:IsTypeConverter x:Key="IsTypeConverter" />
   </Application.Resources>
@@ -21,6 +23,25 @@
     <SimpleTheme />
     <avalonia:MaterialIconStyles />
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml" />
+
+    <Style Selector="views|IconButton">
+        <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            Margin="{TemplateBinding Margin}"
+                            CornerRadius="5">
+                      <avalonia:MaterialIcon Kind="{TemplateBinding Icon}" Foreground="{TemplateBinding Foreground}" Width="{TemplateBinding IconSize}" Height="{TemplateBinding IconSize}"/>
+                    </Border>
+                </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="views|IconButton.pointerover">
+        <Setter Property="Foreground" Value="DeepSkyBlue"></Setter>
+    </Style>
+
     <Style Selector="views|NodeInspectorControl">
       <Setter Property="Template">
         <Setter.Value>
@@ -191,5 +212,7 @@
         </ControlTemplate>
       </Setter>
     </Style>
+
+
   </Application.Styles>
 </Application>

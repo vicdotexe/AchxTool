@@ -18,6 +18,8 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalFrames))]
+    [NotifyPropertyChangedFor(nameof(CurrentFrame))]
+    [NotifyPropertyChangedFor(nameof(Image))]
     private AnimationViewModel? _activeAnimation;
 
     public FrameViewModel? CurrentFrame => ActiveAnimation?.Frames.ElementAtOrDefault(CurrentIndex);
@@ -34,7 +36,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
 
     public Bitmap? Image => CurrentFrame?.TextureName is not null ? BitmapBank.Get(CurrentFrame.TextureName) : null;
 
-    private Stopwatch StopWatch { get; }
+    private Stopwatch StopWatch { get; } = new();
 
     private double _lastElapsed;
     private double _elapsedSinceFrameStart;
@@ -52,7 +54,6 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
 
         timer.Tick += TimerOnTick;
         timer.Start();
-        StopWatch = Stopwatch.StartNew();
         messenger.RegisterAll(this);
     }
 
@@ -66,7 +67,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
         double elapsed = (StopWatch.ElapsedMilliseconds - _lastElapsed) / 1000;
         _elapsedSinceFrameStart += elapsed;
 
-        if (CurrentFrame is not null && ActiveAnimation is not null)
+        if (CurrentFrame is not null)
         {
             if (_elapsedSinceFrameStart >= CurrentFrame.FrameLength)
             {
@@ -104,12 +105,13 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
     {
         if (!value)
         {
-            StopWatch.Reset();
+            StopWatch.Stop();
         }
         else
         {
             _lastElapsed = 0;
             _elapsedSinceFrameStart = 0;
+            StopWatch.Reset();
             StopWatch.Start();
         }
     }
@@ -129,7 +131,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
 
     void IRecipient<Messages.SelectedNodeChanged>.Receive(Messages.SelectedNodeChanged message)
     {
-        if (ActiveAnimation is null || IsRunning)
+        if (ActiveAnimation == message.Node)
         {
             return;
         }

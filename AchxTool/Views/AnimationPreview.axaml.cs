@@ -1,5 +1,6 @@
 using AchxTool.ViewModels;
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 
@@ -12,17 +13,46 @@ public partial class AnimationPreview : UserControl
         InitializeComponent();
     }
 
-    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    protected override void OnDataContextChanged(EventArgs e)
     {
-        if (DataContext is AnimationRunnerViewModel {IsRunning: true} vm)
+        base.OnDataContextChanged(e);
+        if (DataContext is AnimationRunnerViewModel { IsRunning: true } vm)
         {
             vm.IsRunning = false;
+
+            vm.PropertyChanged += (o, args) =>
+            {
+                if (args.PropertyName == nameof(vm.ActiveAnimation))
+                {
+                    Size[] sizes =
+                        [.. vm.ActiveAnimation?.Frames.Select(f => new Size(f.Width, f.Height)) ?? [new(64, 64)]];
+
+                    Matrix containmentMatrix = CreateZoomAndContain(ZoomBorder.Bounds.Size, sizes);
+
+                    ZoomBorder.SetMatrix(containmentMatrix);
+                }
+            };
         }
     }
 
-    private void InputElement_OnGotFocus(object? sender, GotFocusEventArgs e)
+    public static Matrix CreateZoomAndContain(Size container, params Size[] contents)
     {
-        if (DataContext is AnimationRunnerViewModel { IsRunning: true } vm)
+
+        (double mw, double mh) = contents.Aggregate((maxWidth: (double)0, maxHeight: (double)0),
+            (acc, size) => (
+                maxWidth: Math.Max(acc.maxWidth, size.Width),
+                maxHeight: Math.Max(acc.maxHeight, size.Height)
+            )
+        );
+
+        var z = Math.Min(container.Width / mw, container.Height / mh) * 0.9;
+
+        return Matrix.CreateScale(z, z) * Matrix.CreateTranslation(container.Width / 2, container.Height / 2);
+    }
+
+    public void FrameSlider_Focused(object? sender, GotFocusEventArgs e)
+    {
+        if (DataContext is AnimationRunnerViewModel {IsRunning: true} vm)
         {
             vm.IsRunning = false;
         }

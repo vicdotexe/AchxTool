@@ -57,14 +57,14 @@ public class SpriteControl : Control
     {
         if (Image != null)
         {
-            var sourceRect = new Rect(X, Y, Width, Height);
-            var destinationRect = new Rect(0, 0, Width, Height);
+            Rect sourceRect = new(X, Y, Width, Height);
+            Rect destinationRect = new(0, 0, Width, Height);
 
+            Matrix translate = Matrix.CreateTranslation(-Width / 2, -Height / 2);
             Matrix scale = Matrix.CreateScale(FlipHorizontal ? -1 : 1, FlipVertical ? -1 : 1);
-            Matrix translate = Matrix.CreateTranslation(FlipHorizontal ? Width : 0, FlipVertical ? Height : 0);
-            using (context.PushTransform(scale * translate))
-            {
 
+            using (context.PushTransform(translate * scale))
+            {
                 context.DrawImage(Image, sourceRect, destinationRect);
             }
         }
