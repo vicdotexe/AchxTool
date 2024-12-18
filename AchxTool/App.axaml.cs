@@ -33,7 +33,7 @@ public partial class App : Application
 
         // Register all the services needed for the application to run
         var services = new ServiceCollection();
-        services.AddServices();
+        services.AddAchx();
 
         // Creates a ServiceProvider containing services from the provided IServiceCollection
         _serviceProvider = services.BuildServiceProvider();

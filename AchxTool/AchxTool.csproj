@@ -34,10 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Views\TestDialogView.axaml.cs">
       <DependentUpon>TestDialogView.axaml</DependentUpon>
     </Compile>

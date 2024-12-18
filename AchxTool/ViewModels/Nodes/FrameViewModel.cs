@@ -1,8 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-
-using AchxTool.Models;
 using AchxTool.ViewModels.Animation;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AchxTool.ViewModels.Nodes;
@@ -46,10 +43,4 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     private bool _isSelectionEnabled = true;
 
     public ObservableCollection<ColliderNodeViewModel> Colliders { get; } = [];
-
-    public void Load(FrameModel model)
-    {
-
-
-    }
 }

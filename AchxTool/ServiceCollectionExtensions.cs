@@ -24,38 +24,46 @@ namespace AchxTool;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddServices(this IServiceCollection services)
+    public static void AddAchx(this IServiceCollection services)
     {
-        services.AddAvaloniaServices();
-        services.AddSingleton<IMessenger, WeakReferenceMessenger>();
-        services.Scan<ObservableObject>(typeof(ServiceCollectionExtensions).Assembly,
-            static (isp, t) => isp.AddTransient(t));
-        services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
-        services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        
-
-        services.AddAchx();
+        services.AddAvaloniaServices()
+            .AddMvvmHelpers()
+            .AddAchxServices();
     }
-    private static void AddAchx(this IServiceCollection services)
+
+    private static IServiceCollection AddAchxServices(this IServiceCollection services)
     {
         // views
         services.AddTransient<MainWindow>();
         services.AddSingleton<MainView>();
 
-        //singleton viewmodels
+        // singleton viewmodels
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<CanvasViewModel>();
         services.AddSingleton<NodeTreeViewModel>();
 
-        //services
+        // services
         services.AddSingleton<IBitmapBank, BitmapBank>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<NodeTreeViewModel>());
+
+        return services;
+    }
+
+    private static IServiceCollection AddMvvmHelpers(this IServiceCollection services)
+    {
+        services.AddSingleton<IMessenger, WeakReferenceMessenger>();
+        services.Scan<ObservableObject>(typeof(ServiceCollectionExtensions).Assembly,
+            static (isp, t) => isp.AddTransient(t));
+        services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
+        services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+
+        return services;
     }
 
 
-    private static void AddAvaloniaServices(this IServiceCollection services)
+    private static IServiceCollection AddAvaloniaServices(this IServiceCollection services)
     {
         services.AddSingleton<IDispatcher>(_ => Dispatcher.UIThread);
         services.AddSingleton(_ => Application.Current?.ApplicationLifetime ?? throw new InvalidOperationException("No application lifetime is set"));
@@ -70,10 +78,14 @@ public static class ServiceCollectionExtensions
         );
 
         services.AddSingleton(sp => new Lazy<IStorageProvider>(()=>sp.GetRequiredService<TopLevel>().StorageProvider));
+        return services;
     }
+}
 
-    private static IServiceCollection Scan<TBaseType>(this IServiceCollection services, Assembly assembly,
-        Action<IServiceCollection, Type> callback)
+file static class Helpers
+{
+    public static IServiceCollection Scan<TBaseType>(this IServiceCollection services, Assembly assembly,
+    Action<IServiceCollection, Type> callback)
     {
         const BindingFlags ctorFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
         Type baseType = typeof(TBaseType);
