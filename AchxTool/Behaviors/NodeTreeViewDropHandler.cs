@@ -20,7 +20,7 @@ public class NodeTreeViewDropHandler : DropHandlerBase
     {
         if (sender is TreeView treeView &&
             sourceContext is AchxNodeViewModel &&
-            targetContext is MainViewModel &&
+            targetContext is NodeTreeViewModel &&
             treeView.GetVisualAt(e) is TextBlock { DataContext: AchxNodeViewModel controlContext } control &&
             !ReferenceEquals(sourceContext, controlContext))
         {
@@ -47,7 +47,7 @@ public class NodeTreeViewDropHandler : DropHandlerBase
     private bool Validate<T>(TreeView treeView, DragEventArgs e, object? sourceContext, object? targetContext, bool bExecute) where T : AchxNodeViewModel
     {
         if (sourceContext is not T sourceNode
-            || targetContext is not MainViewModel vm)
+            || targetContext is not NodeTreeViewModel vm)
         {
             return false;
         }

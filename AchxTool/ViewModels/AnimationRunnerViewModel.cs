@@ -14,7 +14,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<SelectedNodeChangedMessage>
+public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalFrames))]
@@ -56,6 +56,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Sel
 
         timer.Tick += TimerOnTick;
         timer.Start();
+
         messenger.RegisterAll(this);
     }
 
@@ -108,6 +109,10 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Sel
         if (!value)
         {
             StopWatch.Stop();
+            if (CurrentFrame is not null)
+            {
+                NodeTree.SetSelected(CurrentFrame);
+            }
         }
         else
         {
@@ -115,6 +120,14 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Sel
             _elapsedSinceFrameStart = 0;
             StopWatch.Reset();
             StopWatch.Start();
+        }
+    }
+
+    partial void OnCurrentIndexChanged(int value)
+    {
+        if (!IsRunning && CurrentFrame is not null)
+        {
+            NodeTree.SetSelected(CurrentFrame);
         }
     }
 
@@ -126,7 +139,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Sel
         StopWatch.Restart();
     }
 
-    void IRecipient<SelectedNodeChangedMessage>.Receive(SelectedNodeChangedMessage message)
+    void IRecipient<TreeNodeSelectedMessage>.Receive(TreeNodeSelectedMessage message)
     {
         if (message.Node is null)
         {

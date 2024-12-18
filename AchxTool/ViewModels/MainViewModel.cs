@@ -12,86 +12,37 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public interface INodeTree
+public partial class MainViewModel : ObservableObject
 {
-    IReadOnlyList<AchxNodeViewModel> Nodes { get; }
-    AchxNodeViewModel? FindParent(AchxNodeViewModel child) => Nodes.FindDirectParent(child);
-    AnimationViewModel? FindAnimation(AchxNodeViewModel child) => Nodes.FindParentAnimation(child);
-}
-
-public partial class MainViewModel : ObservableObject, INodeTree, IRecipient<CanvasSelectedNewNodeMessage>, IRecipient<ProjectLoadedMessage>
-{
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
-    private AchxNodeViewModel? _selectedNode;
-
-    [ObservableProperty]
-    public AnimationViewModel? _activeAnimation;
-
-    public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
-    IReadOnlyList<AchxNodeViewModel> INodeTree.Nodes => Nodes;
-
     public CanvasViewModel CanvasViewModel { get; }
+    public NodeTreeViewModel NodeTreeViewModel { get; }
     public AnimationRunnerViewModel AnimationRunner { get; }
     private IViewModelFactory Factory { get; }
-    private IMessenger Messenger { get; }
     private IProjectLoader ProjectLoader { get; }
     private IDialogService DialogService { get; }
-
-    public double ZoomX { get; private set; }
-    public double ZoomY { get; private set; }
-
-    public void SetZoom(double x, double y)
-    {
-        ZoomX = x;
-        ZoomY = y;
-        OnPropertyChanged(nameof(ZoomX));
-        OnPropertyChanged(nameof(ZoomY));
-    }
 
     public MainViewModel(CanvasViewModel canvasViewModel, 
         IViewModelFactory factory,
         AnimationRunnerViewModel animationRunner,
+        NodeTreeViewModel nodeTreeViewModel,
         IMessenger messenger,
         IProjectLoader projectLoader,
         IDialogService dialogService)
     {
         CanvasViewModel = canvasViewModel;
-        Factory = factory;
+        NodeTreeViewModel = nodeTreeViewModel;
         AnimationRunner = animationRunner;
-        Messenger = messenger;
+        Factory = factory;
         ProjectLoader = projectLoader;
         DialogService = dialogService;
 
-        messenger.RegisterAll(this);
-
         foreach (AnimationViewModel animation in MockData())
         {
-            AddAnimation(animation);
+            NodeTreeViewModel.AddAnimation(animation);
         }
     }
 
-    public void AddAnimation(AnimationViewModel animation)
-    {
-        Nodes.Add(animation);
-    }
-
-    partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
-    {
-        foreach (var node in Nodes.Flatten())
-        {
-            node.IsSelected = node == value;
-        }
-        ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
-        Messenger.Send<SelectedNodeChangedMessage>(new(value));
-    }
-
-    partial void OnActiveAnimationChanged(AnimationViewModel? value)
-    {
-        Messenger.Send<ActiveAnimationChangedMessage>(new(value));
-    }
-
-    public async void Save()
+    public async Task Save()
     {
         _ = await DialogService.ShowAsync<TestDialogViewModel>();
     }
@@ -135,90 +86,22 @@ public partial class MainViewModel : ObservableObject, INodeTree, IRecipient<Can
         yield return walking;
     }
 
-    void IRecipient<CanvasSelectedNewNodeMessage>.Receive(CanvasSelectedNewNodeMessage message)
-    {
-        SelectedNode = message.Node;
-    }
 
-    void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
+    public async Task LoadProject()
     {
-        Nodes.Clear();
-        foreach (AnimationViewModel node in message.Project.Animations)
+        if (await DialogService.ShowFilePickerAsync() is not [var fileInfo])
         {
-            Nodes.Add(node);
+            return;
         }
-    }
 
-    public async void LoadProject(string filePath)
-    {
-        ProjectViewModel? project = await ProjectLoader.LoadProjectAsync(filePath);
+        ProjectViewModel? project = await ProjectLoader.LoadProjectAsync(fileInfo.FullName);
         if (project is not null)
         {
             ProjectLoader.CurrentProject = project;
         }
     }
-
-
 }
-public record SelectedNodeChangedMessage(AchxNodeViewModel? Node);
+
+
 public record ActiveAnimationChangedMessage(AnimationViewModel? AnimationViewModel);
 public record ProjectLoadedMessage(ProjectViewModel Project);
-
-
-public static class NodeHelpers
-{
-    public static IEnumerable<AchxNodeViewModel> Flatten(this IEnumerable<AchxNodeViewModel> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            if (node is AnimationViewModel chain)
-            {
-                yield return chain;
-                foreach (var frame in chain.Frames)
-                {
-                    yield return frame;
-                    foreach (var collider in frame.Colliders)
-                    {
-                        yield return collider;
-                    }
-                }
-            }
-            else
-            {
-                yield return node;
-            }
-        }
-    }
-
-    public static AchxNodeViewModel? FindDirectParent(this IEnumerable<AchxNodeViewModel> nodes, AchxNodeViewModel node)
-    {
-        List<AchxNodeViewModel> allNodes = [..nodes.Flatten()];
-
-        return allNodes.FirstOrDefault(n => n switch
-        {
-            AnimationViewModel chain => chain.Frames.Contains(node),
-            FrameViewModel frame => frame.Colliders.Contains(node),
-            _ => false
-        });
-    }
-
-    public static AnimationViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
-        AchxNodeViewModel node, bool includeSelf = true)
-    {
-        if (node is AnimationViewModel self && includeSelf)
-        {
-            return self;
-        }
-
-        List<AchxNodeViewModel> allNodes = [..nodes.Flatten()];
-
-        return allNodes.FindDirectParent(node) switch
-        {
-            AnimationViewModel animation => animation,
-            FrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationViewModel,
-            _ => null
-        };
-    }
-}
-
-

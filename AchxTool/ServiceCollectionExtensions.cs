@@ -17,6 +17,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using AchxTool.Services;
 
+using Avalonia.Platform.Storage;
+
 namespace AchxTool;
 
 public static class ServiceCollectionExtensions
@@ -35,12 +37,20 @@ public static class ServiceCollectionExtensions
     }
     private static void AddAchx(this IServiceCollection services)
     {
-        services.AddViews();
+        // views
+        services.AddTransient<MainWindow>();
+        services.AddSingleton<MainView>();
+
+        //singleton viewmodels
+        services.AddSingleton<MainViewModel>();
         services.AddSingleton<CanvasViewModel>();
+        services.AddSingleton<NodeTreeViewModel>();
+
+        //services
         services.AddSingleton<IBitmapBank, BitmapBank>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddSingleton<IDialogService, DialogService>();
-        services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<MainViewModel>());
+        services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<NodeTreeViewModel>());
     }
 
 
@@ -58,25 +68,7 @@ public static class ServiceCollectionExtensions
             }
         );
 
-        services.AddSingleton(sp => sp.GetRequiredService<TopLevel>().StorageProvider);
-    }
-
-    private static void AddViews(this IServiceCollection services)
-    {
-        //NB: Window is only needed for Desktop
-        services.AddSingleton<MainWindow>();
-
-        services.AddSingleton<MainView>();
-        services.AddSingleton<MainViewModel>();
-        //services.AddView<MainView, MainViewModel>();
-    }
-
-    private static void AddView<TView, TViewModel>(this IServiceCollection services)
-        where TView : class
-        where TViewModel : class
-    {
-        services.AddTransient<TViewModel>();
-        services.AddTransient<TView>();
+        services.AddSingleton(sp => new Lazy<IStorageProvider>(()=>sp.GetRequiredService<TopLevel>().StorageProvider));
     }
 
     private static IServiceCollection Scan<TBaseType>(this IServiceCollection services, Assembly assembly,
@@ -178,4 +170,11 @@ public static class ServiceCollectionExtensions
     private static MethodInfo CreateInstance { get; } = typeof(ActivatorUtilities).GetMethod(nameof(ActivatorUtilities.CreateInstance),
                                                             new[] { typeof(IServiceProvider), typeof(Type), typeof(object[]) })
                                                         ?? throw new InvalidOperationException($"Could not find method {nameof(ActivatorUtilities.CreateInstance)}");
+
+    private static IServiceCollection AddLazy<TService>(this IServiceCollection services)
+        where TService : notnull
+    {
+        services.AddSingleton(sp => new Lazy<TService>(() => sp.GetRequiredService<TService>()));
+        return services;
+    }
 }

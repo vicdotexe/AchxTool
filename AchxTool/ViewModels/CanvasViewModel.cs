@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class CanvasViewModel : ObservableObject, IRecipient<SelectedNodeChangedMessage>,
+public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>,
     IRecipient<ActiveAnimationChangedMessage>
 {
     public ObservableCollection<ICanvasItem> Items { get; } = [];
@@ -42,19 +42,15 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<SelectedNode
             TextureViewModel.ImageSource = frame.TextureName;
         }
 
-        if (value is AchxNodeViewModel node)
-        {
-            Messenger.Send<CanvasSelectedNewNodeMessage>(new(node));
-        }
-
-
-        foreach (var item in Items.Where(x => x is not CanvasTextureViewModel))
+        foreach (var item in Items.Except([TextureViewModel]))
         {
             item.Z = item == value ? 1 : 0;
         }
+
+        Messenger.Send<CanvasSelectionChanged>(new(value));
     }
 
-    void IRecipient<SelectedNodeChangedMessage>.Receive(SelectedNodeChangedMessage message)
+    void IRecipient<TreeNodeSelectedMessage>.Receive(TreeNodeSelectedMessage message)
     {
         SelectedItem = message.Node as ICanvasItem;
     }
@@ -97,6 +93,6 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<SelectedNode
     }
 }
 
-public record CanvasSelectedNewNodeMessage(AchxNodeViewModel Node);
+public record CanvasSelectionChanged(ICanvasItem? CanvasItem);
 
 
