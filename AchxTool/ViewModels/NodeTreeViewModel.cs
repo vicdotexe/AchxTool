@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 using AchxTool.ViewModels.Animation;
 using AchxTool.ViewModels.Nodes;
@@ -20,11 +21,7 @@ namespace AchxTool.ViewModels
     public partial class NodeTreeViewModel : ObservableObject, INodeTree, IRecipient<CanvasSelectionChanged>, IRecipient<ProjectLoadedMessage>
     {
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
         private AchxNodeViewModel? _selectedNode;
-
-        [ObservableProperty]
-        private AnimationViewModel? _activeAnimation;
 
         public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
         IReadOnlyList<AchxNodeViewModel> INodeTree.Nodes => Nodes;
@@ -36,7 +33,6 @@ namespace AchxTool.ViewModels
             Messenger = messenger;
             messenger.RegisterAll(this);
         }
-
 
         public void AddAnimation(AnimationViewModel animation)
         {
@@ -54,13 +50,7 @@ namespace AchxTool.ViewModels
             {
                 node.IsSelected = node == value;
             }
-            ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
             Messenger.Send<TreeNodeSelectedMessage>(new(value));
-        }
-
-        partial void OnActiveAnimationChanged(AnimationViewModel? value)
-        {
-            Messenger.Send<ActiveAnimationChangedMessage>(new(value));
         }
 
         void IRecipient<CanvasSelectionChanged>.Receive(CanvasSelectionChanged message)

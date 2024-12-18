@@ -1,12 +1,6 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using AchxTool.Services;
+﻿using AchxTool.Services;
+using AchxTool.ViewModels.Animation;
 using AchxTool.ViewModels.Nodes;
-
-using Avalonia;
-using Avalonia.Controls;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
@@ -23,9 +17,8 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel(Animation.CanvasViewModel canvasViewModel, 
         IViewModelFactory factory,
-        Animation.AnimationRunnerViewModel animationRunner,
+        AnimationRunnerViewModel animationRunner,
         NodeTreeViewModel nodeTreeViewModel,
-        IMessenger messenger,
         IProjectLoader projectLoader,
         IDialogService dialogService)
     {
@@ -101,7 +94,4 @@ public partial class MainViewModel : ObservableObject
         }
     }
 }
-
-
-public record ActiveAnimationChangedMessage(AnimationViewModel? AnimationViewModel);
 public record ProjectLoadedMessage(ProjectViewModel Project);

@@ -8,23 +8,39 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels.Animation;
 
-public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>,
-    IRecipient<ActiveAnimationChangedMessage>
+public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>
 {
     public ObservableCollection<ICanvasItem> Items { get; } = [];
 
     public CanvasTextureViewModel TextureViewModel { get; }
 
-    [ObservableProperty] private ICanvasItem? _selectedItem;
-    private AnimationViewModel? ActiveAnimation { get; set; }
+    [ObservableProperty] 
+    private ICanvasItem? _selectedItem;
+
+    private AnimationViewModel? _activeAnimation;
+
+    private AnimationViewModel? ActiveAnimation
+    {
+        get => _activeAnimation;
+        set
+        {
+            if (value != _activeAnimation)
+            {
+                OnActiveAnimationChanging(_activeAnimation, value);
+                _activeAnimation = value;
+            }
+        }
+    }
 
     private IMessenger Messenger { get; }
+    private INodeTree NodeTree { get; }
 
-    public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory, IMessenger messenger)
+    public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory, IMessenger messenger, INodeTree nodeTree)
     {
         var textureVm = textureVmFactory();
         textureVm.Z = -1;
         TextureViewModel = textureVm;
+        NodeTree = nodeTree;
 
         Items.Add(TextureViewModel);
         messenger.RegisterAll(this);
@@ -38,7 +54,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
             TextureViewModel.ImageSource = frame.TextureName;
         }
 
-        foreach (var item in Items.Except([TextureViewModel]))
+        foreach (var item in Items.Where(x => x is AchxNodeViewModel))
         {
             item.Z = item == value ? 1 : 0;
         }
@@ -48,31 +64,36 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 
     void IRecipient<TreeNodeSelectedMessage>.Receive(TreeNodeSelectedMessage message)
     {
+        ActiveAnimation = message.Node switch
+        {
+            null => null,
+            _ => NodeTree.FindAnimation(message.Node)
+        };
+
         SelectedItem = message.Node as ICanvasItem;
     }
 
-    void IRecipient<ActiveAnimationChangedMessage>.Receive(ActiveAnimationChangedMessage message)
+    private void OnActiveAnimationChanging(AnimationViewModel? oldValue, AnimationViewModel? newValue)
     {
         Items.Clear();
         Items.Add(TextureViewModel);
 
-        if (ActiveAnimation is not null)
+        if (oldValue is not null)
         {
-            ActiveAnimation.Frames.CollectionChanged -= Animation_FramesChanged;
+            oldValue.Frames.CollectionChanged -= Animation_FramesChanged;
         }
 
-        if (message.AnimationViewModel is { } animation)
+        if (newValue is not null)
         {
-            foreach (FrameViewModel frame in animation.Frames)
+            foreach (FrameViewModel frame in newValue.Frames)
             {
                 Items.Add(frame);
             }
 
-            animation.Frames.CollectionChanged += Animation_FramesChanged;
+            newValue.Frames.CollectionChanged += Animation_FramesChanged;
         }
 
-        ActiveAnimation = message.AnimationViewModel;
-        TextureViewModel.ImageSource = ActiveAnimation?.Frames.FirstOrDefault()?.TextureName;
+        TextureViewModel.ImageSource = newValue?.Frames.FirstOrDefault()?.TextureName;
 
         void Animation_FramesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
@@ -90,5 +111,3 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 }
 
 public record CanvasSelectionChanged(ICanvasItem? CanvasItem);
-
-
