@@ -11,8 +11,11 @@ public interface IProjectSerializer
 
 public class ProjectSerializer : IProjectSerializer
 {
-    public ProjectSerializer(Lazy<INodeTree> nodeList)
+    private INodeTree NodeTree { get; }
+
+    public ProjectSerializer(INodeTree nodeTree)
     {
+        NodeTree = nodeTree;
     }
 
     public string SerializeToLegacyXml(ProjectViewModel project)
