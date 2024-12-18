@@ -1,6 +1,7 @@
-﻿using Avalonia.Data.Converters;
+﻿using System.Globalization;
+
 using Avalonia;
-using System.Globalization;
+using Avalonia.Data.Converters;
 
 namespace AchxTool.Converters;
 

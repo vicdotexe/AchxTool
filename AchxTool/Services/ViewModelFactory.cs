@@ -2,32 +2,31 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AchxTool.Services
+namespace AchxTool.Services;
+
+public interface IViewModelFactory
 {
-    public interface IViewModelFactory
+    T New<T>(Action<T>? setup = null) where T : ObservableObject;
+    Func<T> NewFactory<T>(Action<T>? setup = null) where T : ObservableObject;
+}
+
+public class ViewModelFactory : IViewModelFactory
+{
+    private IServiceProvider ServiceProvider { get; }
+    public ViewModelFactory(IServiceProvider serviceProvider)
     {
-        T New<T>(Action<T>? setup = null) where T : ObservableObject;
-        Func<T> NewFactory<T>(Action<T>? setup = null) where T : ObservableObject;
+        ServiceProvider = serviceProvider;
     }
 
-    public class ViewModelFactory : IViewModelFactory
+    public T New<T>(Action<T>? setup = null) where T : ObservableObject
     {
-        private IServiceProvider ServiceProvider { get; }
-        public ViewModelFactory(IServiceProvider serviceProvider)
-        {
-            ServiceProvider = serviceProvider;
-        }
+        T obj = ServiceProvider.GetRequiredService<T>();
+        setup?.Invoke(obj);
+        return obj;
+    }
 
-        public T New<T>(Action<T>? setup = null) where T : ObservableObject
-        {
-            T obj = ServiceProvider.GetRequiredService<T>();
-            setup?.Invoke(obj);
-            return obj;
-        }
-
-        public Func<T> NewFactory<T>(Action<T>? setup = null) where T : ObservableObject
-        {
-            return () => New(setup);
-        }
+    public Func<T> NewFactory<T>(Action<T>? setup = null) where T : ObservableObject
+    {
+        return () => New(setup);
     }
 }

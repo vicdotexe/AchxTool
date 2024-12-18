@@ -66,7 +66,7 @@ public class DraggableCanvasItem : ContentControl
             {
                 FrameCarver.SelectedItem = Content;
             }
-                
+
             _isDragging = IsDragEnabled;
             _pressedOffset = e.GetPosition(this);
             e.Handled = true;
@@ -142,7 +142,7 @@ public class DraggableCanvasItem : ContentControl
             }
             thumb.DragDelta += (sender, e) =>
             {
-                if (Canvas is not null && sender is Thumb {Name: var name})
+                if (Canvas is not null && sender is Thumb { Name: var name })
                 {
                     double left = Canvas.GetLeft(this);
                     double top = Canvas.GetTop(this);

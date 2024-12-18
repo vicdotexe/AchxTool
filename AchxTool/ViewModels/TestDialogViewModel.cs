@@ -1,7 +1,6 @@
-﻿namespace AchxTool.ViewModels
+﻿namespace AchxTool.ViewModels;
+
+public class TestDialogViewModel : DialogViewModelBase
 {
-    public class TestDialogViewModel : DialogViewModelBase
-    {
-        public string Message { get; } = "Hello, World!";
-    }
+    public string Message { get; } = "Hello, World!";
 }

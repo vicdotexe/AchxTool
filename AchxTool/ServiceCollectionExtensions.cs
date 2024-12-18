@@ -1,24 +1,23 @@
 ﻿using System.Linq.Expressions;
-
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Controls;
-using Avalonia.Threading;
-
-using Microsoft.Extensions.DependencyInjection;
-using Avalonia;
-using AchxTool.Views;
-using AchxTool.ViewModels;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
+using AchxTool.Services;
+using AchxTool.ViewModels;
+using AchxTool.ViewModels.Animation;
+using AchxTool.Views;
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using AchxTool.Services;
-using AchxTool.ViewModels.Animation;
-
-using Avalonia.Platform.Storage;
 
 namespace AchxTool;
 
@@ -77,7 +76,7 @@ public static class ServiceCollectionExtensions
             }
         );
 
-        services.AddSingleton(sp => new Lazy<IStorageProvider>(()=>sp.GetRequiredService<TopLevel>().StorageProvider));
+        services.AddSingleton(sp => new Lazy<IStorageProvider>(() => sp.GetRequiredService<TopLevel>().StorageProvider));
         return services;
     }
 }

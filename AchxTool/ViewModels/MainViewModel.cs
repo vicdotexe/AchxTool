@@ -1,21 +1,21 @@
 ﻿using AchxTool.Services;
 using AchxTool.ViewModels.Animation;
 using AchxTool.ViewModels.Nodes;
+
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    public Animation.CanvasViewModel CanvasViewModel { get; }
+    public CanvasViewModel CanvasViewModel { get; }
     public NodeTreeViewModel NodeTreeViewModel { get; }
-    public Animation.AnimationRunnerViewModel AnimationRunner { get; }
+    public AnimationRunnerViewModel AnimationRunner { get; }
     private IViewModelFactory Factory { get; }
     private IProjectLoader ProjectLoader { get; }
     private IDialogService DialogService { get; }
 
-    public MainViewModel(Animation.CanvasViewModel canvasViewModel, 
+    public MainViewModel(CanvasViewModel canvasViewModel,
         IViewModelFactory factory,
         AnimationRunnerViewModel animationRunner,
         NodeTreeViewModel nodeTreeViewModel,

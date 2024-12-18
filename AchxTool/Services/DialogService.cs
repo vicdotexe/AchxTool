@@ -7,12 +7,14 @@ using Avalonia.Platform.Storage;
 using DialogHostAvalonia;
 
 namespace AchxTool.Services;
+
 public interface IDialogService
 {
     Task<bool> ShowAsync<TDialogViewModel>(TDialogViewModel? viewModel = null)
         where TDialogViewModel : DialogViewModelBase;
     Task<IReadOnlyList<FileInfo>> ShowFilePickerAsync(FilePickerOpenOptions? options = null);
 }
+
 public class DialogService : IDialogService
 {
     private IViewModelFactory ViewModelFactory { get; }
@@ -41,6 +43,6 @@ public class DialogService : IDialogService
         options ??= new() { AllowMultiple = false, Title = "Select File" };
 
         IReadOnlyList<IStorageFile> files = await StorageProvider.Value.OpenFilePickerAsync(options);
-        return [..files.Select(x => new FileInfo(x.Path.AbsolutePath))];
+        return [.. files.Select(x => new FileInfo(x.Path.AbsolutePath))];
     }
 }

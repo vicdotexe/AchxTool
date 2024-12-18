@@ -14,7 +14,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 
     public CanvasTextureViewModel TextureViewModel { get; }
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private ICanvasItem? _selectedItem;
 
     private AnimationViewModel? _activeAnimation;

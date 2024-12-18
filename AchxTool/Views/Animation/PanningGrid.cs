@@ -1,8 +1,6 @@
-﻿using Avalonia.Controls;
-using Avalonia.Input;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia;
-using Avalonia.VisualTree;
 
 namespace AchxTool.Views.Animation;
 

@@ -30,7 +30,7 @@ public partial class Dialog : ContentControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        if (DialogContent.Presenter?.Child is {} dialogView)
+        if (DialogContent.Presenter?.Child is { } dialogView)
         {
             Bind(TitleProperty, AvaloniaObjectExtensions.GetObservable(dialogView, TitleProperty));
             Bind(ActionsProperty, AvaloniaObjectExtensions.GetObservable(dialogView, ActionsProperty));
@@ -40,7 +40,7 @@ public partial class Dialog : ContentControl
 
 public class DialogDataTemplate : IDataTemplate
 {
-    private Dictionary<Type, Func<Control>> _map;
+    private readonly Dictionary<Type, Func<Control>> _map;
 
     public DialogDataTemplate()
     {

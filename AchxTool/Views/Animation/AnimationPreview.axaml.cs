@@ -1,9 +1,7 @@
 using AchxTool.ViewModels.Animation;
-using AchxTool.ViewModels.Nodes;
 
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.PanAndZoom;
 using Avalonia.Input;
 
 namespace AchxTool.Views.Animation;
@@ -54,7 +52,7 @@ public partial class AnimationPreview : UserControl
 
     public void FrameSlider_Focused(object? sender, GotFocusEventArgs e)
     {
-        if (DataContext is AnimationRunnerViewModel {IsRunning: true} vm)
+        if (DataContext is AnimationRunnerViewModel { IsRunning: true } vm)
         {
             vm.IsRunning = false;
         }

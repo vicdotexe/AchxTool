@@ -1,13 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using AchxTool.ViewModels;
 
-using AchxTool.ViewModels;
-
-using Avalonia;
-using Avalonia.Controls.PanAndZoom;
-using Avalonia.Controls.Primitives;
-using Avalonia.Interactivity;
-using Avalonia.VisualTree;
-using Avalonia.Platform.Storage;
+using Avalonia.Controls;
 
 namespace AchxTool.Views;
 

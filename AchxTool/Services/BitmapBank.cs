@@ -5,73 +5,70 @@ using Avalonia.Platform;
 
 using CommunityToolkit.Mvvm.Messaging;
 
-namespace AchxTool.Services
+namespace AchxTool.Services;
+
+public interface IBitmapBank
 {
-    public interface IBitmapBank
+    Bitmap Get(string filePath);
+}
+
+public class BitmapBank : IBitmapBank, IRecipient<ProjectLoadedMessage>
+{
+    private Dictionary<string, Bitmap> Bitmaps { get; } = [];
+    private DirectoryInfo? ParentDirectory { get; set; }
+
+    public BitmapBank(IMessenger messenger)
     {
-        Bitmap Get(string filePath);
+        messenger.RegisterAll(this);
     }
 
-    public class BitmapBank : IBitmapBank, IRecipient<ProjectLoadedMessage>
+    public Bitmap Get(string filePath)
     {
-        private Dictionary<string, Bitmap> Bitmaps { get; } = [];
-        private DirectoryInfo? ParentDirectory { get; set; }
-
-        public BitmapBank(IMessenger messenger)
+        if (Bitmaps.TryGetValue(filePath, out var bitmap))
         {
-            messenger.RegisterAll(this);
+            return bitmap;
         }
 
-        public Bitmap Get(string filePath)
+        try
         {
-            if (Bitmaps.TryGetValue(filePath, out var bitmap))
-            {
-                return bitmap;
-            }
-
+            string actualPath = Path.Combine(ParentDirectory?.FullName ?? "", filePath);
+            bitmap = new Bitmap(actualPath);
+            Bitmaps[filePath] = bitmap;
+            return bitmap;
+        }
+        catch (Exception e)
+        {
             try
             {
-                string actualPath = Path.Combine(ParentDirectory?.FullName ?? "", filePath);
-                bitmap = new Bitmap(actualPath);
+                bitmap = new Bitmap(AssetLoader.Open(new Uri($"avares://AchxTool/Assets/{filePath}")));
                 Bitmaps[filePath] = bitmap;
                 return bitmap;
             }
-            catch (Exception e)
+            catch (Exception e2)
             {
-                try
-                {
-                    bitmap = new Bitmap(AssetLoader.Open(new Uri($"avares://AchxTool/Assets/{filePath}")));
-                    Bitmaps[filePath] = bitmap;
-                    return bitmap;
-                }
-                catch (Exception e2)
-                {
-                    Console.WriteLine($"Failed to load bitmap from {filePath}: {e2.Message}");
-                    return null;
-                }
-
-                Console.WriteLine($"Failed to load bitmap from {filePath}: {e.Message}");
+                Console.WriteLine($"Failed to load bitmap from {filePath}: {e2.Message}");
                 return null;
             }
-        }
 
-        void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
-        {
-            ParentDirectory = new FileInfo(message.Project.FilePath!).Directory;
-
-            foreach (var animation in message.Project.Animations)
-            {
-                foreach (var frame in animation.Frames)
-                {
-                    if (frame.TextureName is {} path)
-                    {
-                        _ = Get(path);
-                    }
-                    
-                }
-            }
+            Console.WriteLine($"Failed to load bitmap from {filePath}: {e.Message}");
+            return null;
         }
     }
 
+    void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
+    {
+        ParentDirectory = new FileInfo(message.Project.FilePath!).Directory;
 
+        foreach (var animation in message.Project.Animations)
+        {
+            foreach (var frame in animation.Frames)
+            {
+                if (frame.TextureName is { } path)
+                {
+                    _ = Get(path);
+                }
+
+            }
+        }
+    }
 }

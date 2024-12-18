@@ -1,18 +1,13 @@
-﻿using System;
+﻿using AchxTool.Views;
 
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 
-using Microsoft.Extensions.DependencyInjection;
-
-using AchxTool.ViewModels;
-using AchxTool.Views;
-
-using Avalonia.Automation;
-
 using HotAvalonia;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AchxTool;
 public partial class App : Application

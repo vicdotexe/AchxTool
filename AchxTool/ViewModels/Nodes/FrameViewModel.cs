@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+
 using AchxTool.ViewModels.Animation;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AchxTool.ViewModels.Nodes;
@@ -9,13 +11,13 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     [ObservableProperty]
     private bool _flipHorizontal;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private bool _flipVertical;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private double _frameLength;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private string? _textureName;
 
     [ObservableProperty]
@@ -24,7 +26,7 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     [ObservableProperty]
     private double _y;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private double _z;
 
     [ObservableProperty]

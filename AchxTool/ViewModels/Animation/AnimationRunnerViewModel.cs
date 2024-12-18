@@ -27,7 +27,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
     [NotifyPropertyChangedFor(nameof(Image))]
     private int _currentIndex;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private bool _isRunning = true;
 
     public int TotalFrames => ActiveAnimation?.Frames.Count ?? 0;
@@ -47,7 +47,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
         BitmapBank = bitmapBank;
         NodeTree = nodeTree;
 
-        DispatcherTimer timer  = new ()
+        DispatcherTimer timer = new()
         {
             Interval = TimeSpan.FromMilliseconds(16),
         };
@@ -58,7 +58,7 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
         messenger.RegisterAll(this);
     }
 
-    
+
     private void TimerOnTick(object? sender, EventArgs e)
     {
         if (!IsRunning)
