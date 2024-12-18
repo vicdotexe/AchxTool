@@ -14,7 +14,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Messages.ActiveAnimationChanged>, IRecipient<Messages.SelectedNodeChanged>
+public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<SelectedNodeChangedMessage>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalFrames))]
@@ -42,10 +42,12 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
     private double _elapsedSinceFrameStart;
 
     private IBitmapBank BitmapBank { get; }
+    private INodeTree NodeTree { get; }
 
-    public AnimationRunnerViewModel(IBitmapBank bitmapBank, IMessenger messenger)
+    public AnimationRunnerViewModel(IBitmapBank bitmapBank, IMessenger messenger, INodeTree nodeTree)
     {
         BitmapBank = bitmapBank;
+        NodeTree = nodeTree;
 
         DispatcherTimer timer  = new ()
         {
@@ -124,21 +126,23 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Mes
         StopWatch.Restart();
     }
 
-    void IRecipient<Messages.ActiveAnimationChanged>.Receive(Messages.ActiveAnimationChanged message)
+    void IRecipient<SelectedNodeChangedMessage>.Receive(SelectedNodeChangedMessage message)
     {
-        ActiveAnimation = message.AnimationViewModel;
-    }
-
-    void IRecipient<Messages.SelectedNodeChanged>.Receive(Messages.SelectedNodeChanged message)
-    {
-        if (ActiveAnimation == message.Node)
+        if (message.Node is null)
         {
+            ActiveAnimation = null;
+            CurrentIndex = 0;
             return;
         }
 
-        if (message.Node is FrameViewModel frame && ActiveAnimation.Frames.IndexOf(frame) is var index and >= 0)
+        if (NodeTree.FindAnimation(message.Node) is { } animation)
         {
-            CurrentIndex = index;
+            if (message.Node is FrameViewModel frame)
+            {
+                CurrentIndex = animation.Frames.IndexOf(frame);
+            }
+
+            ActiveAnimation = animation;
         }
     }
 }

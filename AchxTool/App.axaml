@@ -9,6 +9,7 @@
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -23,6 +24,7 @@
     <SimpleTheme />
     <avalonia:MaterialIconStyles />
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml" />
+    <dialogHostAvalonia:DialogHostStyles />
 
     <Style Selector="views|IconButton">
         <Setter Property="Template">

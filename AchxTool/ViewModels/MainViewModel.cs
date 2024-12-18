@@ -12,7 +12,14 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class MainViewModel : ObservableObject, IRecipient<Messages.CanvasSelectedNewNode>, IRecipient<Messages.ProjectLoaded>
+public interface INodeTree
+{
+    IReadOnlyList<AchxNodeViewModel> Nodes { get; }
+    AchxNodeViewModel? FindParent(AchxNodeViewModel child) => Nodes.FindDirectParent(child);
+    AnimationViewModel? FindAnimation(AchxNodeViewModel child) => Nodes.FindParentAnimation(child);
+}
+
+public partial class MainViewModel : ObservableObject, INodeTree, IRecipient<CanvasSelectedNewNodeMessage>, IRecipient<ProjectLoadedMessage>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
@@ -22,12 +29,14 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
     public AnimationViewModel? _activeAnimation;
 
     public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
+    IReadOnlyList<AchxNodeViewModel> INodeTree.Nodes => Nodes;
 
     public CanvasViewModel CanvasViewModel { get; }
     public AnimationRunnerViewModel AnimationRunner { get; }
     private IViewModelFactory Factory { get; }
     private IMessenger Messenger { get; }
-    private IProjectService ProjectService { get; }
+    private IProjectLoader ProjectLoader { get; }
+    private IDialogService DialogService { get; }
 
     public double ZoomX { get; private set; }
     public double ZoomY { get; private set; }
@@ -44,13 +53,15 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
         IViewModelFactory factory,
         AnimationRunnerViewModel animationRunner,
         IMessenger messenger,
-        IProjectService projectService)
+        IProjectLoader projectLoader,
+        IDialogService dialogService)
     {
         CanvasViewModel = canvasViewModel;
         Factory = factory;
         AnimationRunner = animationRunner;
         Messenger = messenger;
-        ProjectService = projectService;
+        ProjectLoader = projectLoader;
+        DialogService = dialogService;
 
         messenger.RegisterAll(this);
 
@@ -72,12 +83,17 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
             node.IsSelected = node == value;
         }
         ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
-        Messenger.Send<Messages.SelectedNodeChanged>(new(value));
+        Messenger.Send<SelectedNodeChangedMessage>(new(value));
     }
 
     partial void OnActiveAnimationChanged(AnimationViewModel? value)
     {
-        Messenger.Send<Messages.ActiveAnimationChanged>(new(value));
+        Messenger.Send<ActiveAnimationChangedMessage>(new(value));
+    }
+
+    public async void Save()
+    {
+        _ = await DialogService.ShowAsync<TestDialogViewModel>();
     }
 
     private IEnumerable<AnimationViewModel> MockData()
@@ -119,12 +135,12 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
         yield return walking;
     }
 
-    void IRecipient<Messages.CanvasSelectedNewNode>.Receive(Messages.CanvasSelectedNewNode message)
+    void IRecipient<CanvasSelectedNewNodeMessage>.Receive(CanvasSelectedNewNodeMessage message)
     {
         SelectedNode = message.Node;
     }
 
-    void IRecipient<Messages.ProjectLoaded>.Receive(Messages.ProjectLoaded message)
+    void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
     {
         Nodes.Clear();
         foreach (AnimationViewModel node in message.Project.Animations)
@@ -135,13 +151,19 @@ public partial class MainViewModel : ObservableObject, IRecipient<Messages.Canva
 
     public async void LoadProject(string filePath)
     {
-        ProjectViewModel? project = await ProjectService.LoadProjectAsync(filePath);
+        ProjectViewModel? project = await ProjectLoader.LoadProjectAsync(filePath);
         if (project is not null)
         {
-            ProjectService.CurrentProject = project;
+            ProjectLoader.CurrentProject = project;
         }
     }
+
+
 }
+public record SelectedNodeChangedMessage(AchxNodeViewModel? Node);
+public record ActiveAnimationChangedMessage(AnimationViewModel? AnimationViewModel);
+public record ProjectLoadedMessage(ProjectViewModel Project);
+
 
 public static class NodeHelpers
 {
@@ -199,10 +221,4 @@ public static class NodeHelpers
     }
 }
 
-public partial class Messages
-{
-    public record SelectedNodeChanged(AchxNodeViewModel? Node);
 
-    public record ActiveAnimationChanged(AnimationViewModel? AnimationViewModel);
-    public record ProjectLoaded(ProjectViewModel Project);
-}

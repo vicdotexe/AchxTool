@@ -11,8 +11,8 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.SelectedNodeChanged>,
-    IRecipient<Messages.ActiveAnimationChanged>
+public partial class CanvasViewModel : ObservableObject, IRecipient<SelectedNodeChangedMessage>,
+    IRecipient<ActiveAnimationChangedMessage>
 {
     public ObservableCollection<ICanvasItem> Items { get; } = [];
 
@@ -44,7 +44,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.Sel
 
         if (value is AchxNodeViewModel node)
         {
-            Messenger.Send<Messages.CanvasSelectedNewNode>(new(node));
+            Messenger.Send<CanvasSelectedNewNodeMessage>(new(node));
         }
 
 
@@ -54,12 +54,12 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.Sel
         }
     }
 
-    void IRecipient<Messages.SelectedNodeChanged>.Receive(Messages.SelectedNodeChanged message)
+    void IRecipient<SelectedNodeChangedMessage>.Receive(SelectedNodeChangedMessage message)
     {
         SelectedItem = message.Node as ICanvasItem;
     }
 
-    void IRecipient<Messages.ActiveAnimationChanged>.Receive(Messages.ActiveAnimationChanged message)
+    void IRecipient<ActiveAnimationChangedMessage>.Receive(ActiveAnimationChangedMessage message)
     {
         Items.Clear();
         Items.Add(TextureViewModel);
@@ -97,10 +97,6 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<Messages.Sel
     }
 }
 
-public partial class Messages
-{
-    public record CanvasSelectedNewNode(AchxNodeViewModel Node);
-}
-
+public record CanvasSelectedNewNodeMessage(AchxNodeViewModel Node);
 
 

@@ -28,9 +28,8 @@ public static class ServiceCollectionExtensions
         services.Scan<ObservableObject>(typeof(ServiceCollectionExtensions).Assembly,
             static (isp, t) => isp.AddTransient(t));
         services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
-
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        services.AddSingleton<IProjectService, ProjectService>();
+        
 
         services.AddAchx();
     }
@@ -39,6 +38,9 @@ public static class ServiceCollectionExtensions
         services.AddViews();
         services.AddSingleton<CanvasViewModel>();
         services.AddSingleton<IBitmapBank, BitmapBank>();
+        services.AddSingleton<IProjectLoader, ProjectLoader>();
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<MainViewModel>());
     }
 
 
@@ -62,9 +64,11 @@ public static class ServiceCollectionExtensions
     private static void AddViews(this IServiceCollection services)
     {
         //NB: Window is only needed for Desktop
-        services.AddTransient<MainWindow>();
+        services.AddSingleton<MainWindow>();
 
-        services.AddView<MainView, MainViewModel>();
+        services.AddSingleton<MainView>();
+        services.AddSingleton<MainViewModel>();
+        //services.AddView<MainView, MainViewModel>();
     }
 
     private static void AddView<TView, TViewModel>(this IServiceCollection services)

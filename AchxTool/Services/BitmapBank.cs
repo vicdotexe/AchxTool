@@ -12,7 +12,7 @@ namespace AchxTool.Services
         Bitmap Get(string filePath);
     }
 
-    public class BitmapBank : IBitmapBank, IRecipient<Messages.ProjectLoaded>
+    public class BitmapBank : IBitmapBank, IRecipient<ProjectLoadedMessage>
     {
         private Dictionary<string, Bitmap> Bitmaps { get; } = [];
         private DirectoryInfo? ParentDirectory { get; set; }
@@ -55,7 +55,7 @@ namespace AchxTool.Services
             }
         }
 
-        void IRecipient<Messages.ProjectLoaded>.Receive(Messages.ProjectLoaded message)
+        void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
         {
             ParentDirectory = new FileInfo(message.Project.FilePath!).Directory;
 

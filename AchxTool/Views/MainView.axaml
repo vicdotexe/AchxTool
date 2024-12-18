@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
@@ -50,153 +51,155 @@
       </Setter>
     </Style>
   </UserControl.Styles>
-  <Grid RowDefinitions="Auto,*">
-    <Menu>
-      <MenuItem Header="File">
-        <MenuItem Click="MenuItem_Load_OnClick" Header="Load" />
-      </MenuItem>
-    </Menu>
-    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,250">
-      <Grid.Styles>
-        <Styles>
-          <Style Selector="GridSplitter">
-            <Setter Property="Width" Value="4" />
-          </Style>
-
-          <Style Selector="TreeView">
-            <Style.Resources>
-              <behaviors:NodeTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
-            </Style.Resources>
-            <Setter Property="(Interaction.Behaviors)">
-              <BehaviorCollectionTemplate>
-                <BehaviorCollection>
-                  <ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
-                </BehaviorCollection>
-              </BehaviorCollectionTemplate>
-            </Setter>
-          </Style>
-        </Styles>
-
-      </Grid.Styles>
-      <TreeView x:Name="MainTreeView"
-                Grid.Column="0"
-                BorderThickness="0"
-                ItemsSource="{Binding Nodes}"
-                SelectedItem="{Binding SelectedNode}"
-                SelectionChanged="MainTreeView_OnSelectionChanged"
-                SelectionMode="Multiple">
-        <TreeView.Styles>
-          <Style Selector="TreeViewItem">
-            <Setter Property="IsExpanded" Value="True" />
-          </Style>
-        </TreeView.Styles>
-        <TreeView.DataTemplates>
-          <TreeDataTemplate DataType="{x:Type nodes:AnimationViewModel}" ItemsSource="{Binding Frames}">
-            <TextBlock>
-              <TextBlock.Text>
-                <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Animation">
-                  <Binding Path="Name" />
-                  <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
-                  <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
-                </MultiBinding>
-              </TextBlock.Text>
-              <TextBlock.ContextFlyout>
-                <MenuFlyout>
-                  <MenuItem Command="{Binding AddFrameCommand}" Header="Add Frame" />
-                </MenuFlyout>
-              </TextBlock.ContextFlyout>
-            </TextBlock>
-          </TreeDataTemplate>
-          <TreeDataTemplate DataType="{x:Type vm:FrameViewModel}">
-            <TextBlock>
-              <TextBlock.Text>
-                <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">
-                  <Binding Path="Name" />
-                  <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
-                  <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
-                </MultiBinding>
-              </TextBlock.Text>
-            </TextBlock>
-          </TreeDataTemplate>
-        </TreeView.DataTemplates>
-      </TreeView>
-      <GridSplitter Grid.Column="1" />
-
-
-      <Grid Grid.Column="2" RowDefinitions="Auto,*">
-        <StackPanel Grid.Row="0">
-          <ColorPicker x:Name="BackgroundColorPicker" Color="#3B3626" />
-        </StackPanel>
-        <canvasItems:FrameCarvingCanvas Grid.Row="1"
-                                        Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
-                                        DataContext="{Binding CanvasViewModel}"
-                                        ItemsSource="{Binding Items}"
-                                        SelectedItem="{Binding SelectedItem}">
-          <canvasItems:FrameCarvingCanvas.Styles>
-
-            <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
-              <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
-              <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
-              <Setter Property="ZIndex" Value="{Binding Z}" />
-              <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
-              <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
-              <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
-              <Setter Property="IsSelectionEnabled" Value="{Binding IsSelectionEnabled}" />
-            </Style>
-
-            <Style Selector="Rectangle">
-              <Setter Property="Stroke" Value="White" />
-            </Style>
-            <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
-              <Setter Property="Stroke" Value="DodgerBlue" />
-            </Style>
-            <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
-              <Setter Property="Stroke" Value="DeepSkyBlue" />
-            </Style>
-            <Style Selector="canvasItems|DraggableCanvasItem Thumb">
-              <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-              <!--<Setter Property="RenderTransform">
-              <ScaleTransform ScaleX="{Binding $parent[views:MainView].ZoomX, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" ScaleY="{Binding $parent[views:MainView].ZoomY, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" />
-            </Setter>-->
-            </Style>
-
-          </canvasItems:FrameCarvingCanvas.Styles>
-          <canvasItems:FrameCarvingCanvas.DataTemplates>
-            <DataTemplate DataType="{x:Type vm:FrameViewModel}">
-              <Rectangle HorizontalAlignment="Stretch"
-                         VerticalAlignment="Stretch"
-                         StrokeDashArray="4,2"
-                         StrokeThickness="1" />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
-              <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Image}" />
-            </DataTemplate>
-          </canvasItems:FrameCarvingCanvas.DataTemplates>
-        </canvasItems:FrameCarvingCanvas>
-      </Grid>
-
-      <GridSplitter Grid.Column="3" />
-      <Grid Grid.Column="4" RowDefinitions="2*,Auto,*">
+  <dialogHostAvalonia:DialogHost>
+    <Grid RowDefinitions="Auto,*">
+      <Menu>
+        <MenuItem Header="File">
+          <MenuItem Click="MenuItem_Load_OnClick" Header="Load" />
+          <MenuItem Command="{Binding Save}" Header="Test Dialog" />
+        </MenuItem>
+      </Menu>
+      <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,250">
         <Grid.Styles>
           <Styles>
             <Style Selector="GridSplitter">
-              <Setter Property="Height" Value="4" />
-              <Setter Property="Width" Value="NaN" />
+              <Setter Property="Width" Value="4" />
+            </Style>
+
+            <Style Selector="TreeView">
+              <Style.Resources>
+                <behaviors:NodeTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
+              </Style.Resources>
+              <Setter Property="(Interaction.Behaviors)">
+                <BehaviorCollectionTemplate>
+                  <BehaviorCollection>
+                    <ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+                  </BehaviorCollection>
+                </BehaviorCollectionTemplate>
+              </Setter>
             </Style>
           </Styles>
+
         </Grid.Styles>
-        <views:NodeInspectorControl SelectedNode="{Binding SelectedNode}" />
-        <GridSplitter Grid.Row="1" />
+        <TreeView x:Name="MainTreeView"
+                  Grid.Column="0"
+                  BorderThickness="0"
+                  ItemsSource="{Binding Nodes}"
+                  SelectedItem="{Binding SelectedNode}"
+                  SelectionChanged="MainTreeView_OnSelectionChanged"
+                  SelectionMode="Multiple">
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+              <Setter Property="IsExpanded" Value="True" />
+            </Style>
+          </TreeView.Styles>
+          <TreeView.DataTemplates>
+            <TreeDataTemplate DataType="{x:Type nodes:AnimationViewModel}" ItemsSource="{Binding Frames}">
+              <TextBlock>
+                <TextBlock.Text>
+                  <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Animation">
+                    <Binding Path="Name" />
+                    <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
+                  </MultiBinding>
+                </TextBlock.Text>
+                <TextBlock.ContextFlyout>
+                  <MenuFlyout>
+                    <MenuItem Command="{Binding AddFrameCommand}" Header="Add Frame" />
+                  </MenuFlyout>
+                </TextBlock.ContextFlyout>
+              </TextBlock>
+            </TreeDataTemplate>
+            <TreeDataTemplate DataType="{x:Type vm:FrameViewModel}">
+              <TextBlock>
+                <TextBlock.Text>
+                  <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">
+                    <Binding Path="Name" />
+                    <Binding Path="DataContext" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="Items" RelativeSource="{RelativeSource AncestorType=TreeView}" />
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+            </TreeDataTemplate>
+          </TreeView.DataTemplates>
+        </TreeView>
+        <GridSplitter Grid.Column="1" />
 
-        <views:AnimationPreview Grid.Row="2"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                DataContext="{Binding AnimationRunner}" />
+
+        <Grid Grid.Column="2" RowDefinitions="Auto,*">
+          <StackPanel Grid.Row="0">
+            <ColorPicker x:Name="BackgroundColorPicker" Color="#3B3626" />
+          </StackPanel>
+          <canvasItems:FrameCarvingCanvas Grid.Row="1"
+                                          Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
+                                          DataContext="{Binding CanvasViewModel}"
+                                          ItemsSource="{Binding Items}"
+                                          SelectedItem="{Binding SelectedItem}">
+            <canvasItems:FrameCarvingCanvas.Styles>
+
+              <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
+                <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
+                <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
+                <Setter Property="ZIndex" Value="{Binding Z}" />
+                <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}" />
+                <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}" />
+                <Setter Property="IsDragEnabled" Value="{Binding IsDragEnabled}" />
+                <Setter Property="IsSelectionEnabled" Value="{Binding IsSelectionEnabled}" />
+              </Style>
+
+              <Style Selector="Rectangle">
+                <Setter Property="Stroke" Value="White" />
+              </Style>
+              <Style Selector="canvasItems|DraggableCanvasItem:pointerover Rectangle">
+                <Setter Property="Stroke" Value="DodgerBlue" />
+              </Style>
+              <Style Selector="canvasItems|DraggableCanvasItem[IsSelected=True] Rectangle">
+                <Setter Property="Stroke" Value="DeepSkyBlue" />
+              </Style>
+              <Style Selector="canvasItems|DraggableCanvasItem Thumb">
+                <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+                <!--<Setter Property="RenderTransform">
+              <ScaleTransform ScaleX="{Binding $parent[views:MainView].ZoomX, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" ScaleY="{Binding $parent[views:MainView].ZoomY, Converter={StaticResource ScaleInverterConverter}, Mode=OneWay}" />
+            </Setter>-->
+              </Style>
+
+            </canvasItems:FrameCarvingCanvas.Styles>
+            <canvasItems:FrameCarvingCanvas.DataTemplates>
+              <DataTemplate DataType="{x:Type vm:FrameViewModel}">
+                <Rectangle HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch"
+                           StrokeDashArray="4,2"
+                           StrokeThickness="1" />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
+                <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Image}" />
+              </DataTemplate>
+            </canvasItems:FrameCarvingCanvas.DataTemplates>
+          </canvasItems:FrameCarvingCanvas>
+        </Grid>
+
+        <GridSplitter Grid.Column="3" />
+        <Grid Grid.Column="4" RowDefinitions="2*,Auto,*">
+          <Grid.Styles>
+            <Styles>
+              <Style Selector="GridSplitter">
+                <Setter Property="Height" Value="4" />
+                <Setter Property="Width" Value="NaN" />
+              </Style>
+            </Styles>
+          </Grid.Styles>
+          <views:NodeInspectorControl SelectedNode="{Binding SelectedNode}" />
+          <GridSplitter Grid.Row="1" />
+
+          <views:AnimationPreview Grid.Row="2"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  DataContext="{Binding AnimationRunner}" />
 
 
+        </Grid>
       </Grid>
     </Grid>
-  </Grid>
-
+  </dialogHostAvalonia:DialogHost>
 
 </UserControl>

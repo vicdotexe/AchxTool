@@ -64,7 +64,7 @@
                 Height="16"
                 Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}">
           <Button.Flyout>
-            <Flyout>
+            <Flyout Placement="Left" ShowMode="Standard">
               <ColorView x:Name="BackgroundColorPicker" Color="Black" />
             </Flyout>
           </Button.Flyout>

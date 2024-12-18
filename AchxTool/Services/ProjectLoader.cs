@@ -7,13 +7,13 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.Services
 {
-    public interface IProjectService
+    public interface IProjectLoader
     {
         ProjectViewModel CurrentProject { get; set; }
         Task<ProjectViewModel?> LoadProjectAsync(string path);
     }
 
-    public class ProjectService : IProjectService
+    public class ProjectLoader : IProjectLoader
     {
         private ProjectViewModel _currentProject;
 
@@ -25,7 +25,7 @@ namespace AchxTool.Services
                 if (value != _currentProject)
                 {
                     _currentProject = value;
-                    Messenger.Send<Messages.ProjectLoaded>(new(value));
+                    Messenger.Send<ProjectLoadedMessage>(new(value));
                 }
             }
         }
@@ -48,7 +48,7 @@ namespace AchxTool.Services
             return null;
         }
 
-        public ProjectService(IViewModelFactory factory, IMessenger messenger)
+        public ProjectLoader(IViewModelFactory factory, IMessenger messenger)
         {
             Factory = factory;
             _currentProject = factory.New<ProjectViewModel>();

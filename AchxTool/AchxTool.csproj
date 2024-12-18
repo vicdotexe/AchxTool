@@ -19,6 +19,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Xaml.Behaviors" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="DialogHost.Avalonia" />
     <PackageReference Include="Material.Icons.Avalonia" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
 
@@ -34,5 +35,11 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\TestDialogView.axaml.cs">
+      <DependentUpon>TestDialogView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
