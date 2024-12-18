@@ -1,139 +1,143 @@
-﻿using AchxTool.ViewModels.Nodes;
-using AchxTool.ViewModels;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+
+using AchxTool.ViewModels.Animation;
+using AchxTool.ViewModels.Nodes;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
-public interface INodeTree
+namespace AchxTool.ViewModels
 {
-    IReadOnlyList<AchxNodeViewModel> Nodes { get; }
-    public void SetSelected(AchxNodeViewModel? node);
-
-    AchxNodeViewModel? FindParent(AchxNodeViewModel child) => Nodes.FindDirectParent(child);
-    AnimationViewModel? FindAnimation(AchxNodeViewModel child) => Nodes.FindParentAnimation(child);
-}
-
-public partial class NodeTreeViewModel : ObservableObject, INodeTree, IRecipient<CanvasSelectionChanged>, IRecipient<ProjectLoadedMessage>
-{
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
-    private AchxNodeViewModel? _selectedNode;
-
-    [ObservableProperty]
-    public AnimationViewModel? _activeAnimation;
-
-    public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
-    IReadOnlyList<AchxNodeViewModel> INodeTree.Nodes => Nodes;
-
-    private IMessenger Messenger { get; }
-
-    public NodeTreeViewModel(IMessenger messenger)
+    public interface INodeTree
     {
-        Messenger = messenger;
-        messenger.RegisterAll(this);
+        IReadOnlyList<AchxNodeViewModel> Nodes { get; }
+        public void SetSelected(AchxNodeViewModel? node);
+
+        AchxNodeViewModel? FindParent(AchxNodeViewModel child) => Nodes.FindDirectParent(child);
+        AnimationViewModel? FindAnimation(AchxNodeViewModel child) => Nodes.FindParentAnimation(child);
     }
 
-
-    public void AddAnimation(AnimationViewModel animation)
+    public partial class NodeTreeViewModel : ObservableObject, INodeTree, IRecipient<CanvasSelectionChanged>, IRecipient<ProjectLoadedMessage>
     {
-        Nodes.Add(animation);
-    }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ActiveAnimation))]
+        private AchxNodeViewModel? _selectedNode;
 
-    public void SetSelected(AchxNodeViewModel? node)
-    {
-        SelectedNode = node;
-    }
+        [ObservableProperty]
+        private AnimationViewModel? _activeAnimation;
 
-    partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
-    {
-        foreach (var node in Nodes.Flatten())
+        public ObservableCollection<AchxNodeViewModel> Nodes { get; } = [];
+        IReadOnlyList<AchxNodeViewModel> INodeTree.Nodes => Nodes;
+
+        private IMessenger Messenger { get; }
+
+        public NodeTreeViewModel(IMessenger messenger)
         {
-            node.IsSelected = node == value;
+            Messenger = messenger;
+            messenger.RegisterAll(this);
         }
-        ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
-        Messenger.Send<TreeNodeSelectedMessage>(new(value));
-    }
 
-    partial void OnActiveAnimationChanged(AnimationViewModel? value)
-    {
-        Messenger.Send<ActiveAnimationChangedMessage>(new(value));
-    }
 
-    void IRecipient<CanvasSelectionChanged>.Receive(CanvasSelectionChanged message)
-    {
-        if (message.CanvasItem is AchxNodeViewModel node)
+        public void AddAnimation(AnimationViewModel animation)
+        {
+            Nodes.Add(animation);
+        }
+
+        public void SetSelected(AchxNodeViewModel? node)
         {
             SelectedNode = node;
         }
-    }
 
-    void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
-    {
-        Nodes.Clear();
-        SelectedNode = null;
-        foreach (AnimationViewModel node in message.Project.Animations)
+        partial void OnSelectedNodeChanged(AchxNodeViewModel? value)
         {
-            Nodes.Add(node);
-        }
-    }
-
-}
-
-public record TreeNodeSelectedMessage(AchxNodeViewModel? Node);
-
-public static class NodeHelpers
-{
-    public static IEnumerable<AchxNodeViewModel> Flatten(this IEnumerable<AchxNodeViewModel> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            if (node is AnimationViewModel chain)
+            foreach (var node in Nodes.Flatten())
             {
-                yield return chain;
-                foreach (var frame in chain.Frames)
+                node.IsSelected = node == value;
+            }
+            ActiveAnimation = value is not null ? Nodes.FindParentAnimation(value) : null;
+            Messenger.Send<TreeNodeSelectedMessage>(new(value));
+        }
+
+        partial void OnActiveAnimationChanged(AnimationViewModel? value)
+        {
+            Messenger.Send<ActiveAnimationChangedMessage>(new(value));
+        }
+
+        void IRecipient<CanvasSelectionChanged>.Receive(CanvasSelectionChanged message)
+        {
+            if (message.CanvasItem is AchxNodeViewModel node)
+            {
+                SelectedNode = node;
+            }
+        }
+
+        void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
+        {
+            Nodes.Clear();
+            SelectedNode = null;
+            foreach (AnimationViewModel node in message.Project.Animations)
+            {
+                Nodes.Add(node);
+            }
+        }
+
+    }
+
+    public record TreeNodeSelectedMessage(AchxNodeViewModel? Node);
+
+    public static class NodeHelpers
+    {
+        public static IEnumerable<AchxNodeViewModel> Flatten(this IEnumerable<AchxNodeViewModel> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (node is AnimationViewModel chain)
                 {
-                    yield return frame;
-                    foreach (var collider in frame.Colliders)
+                    yield return chain;
+                    foreach (var frame in chain.Frames)
                     {
-                        yield return collider;
+                        yield return frame;
+                        foreach (var collider in frame.Colliders)
+                        {
+                            yield return collider;
+                        }
                     }
                 }
+                else
+                {
+                    yield return node;
+                }
             }
-            else
+        }
+
+        public static AchxNodeViewModel? FindDirectParent(this IEnumerable<AchxNodeViewModel> nodes, AchxNodeViewModel node)
+        {
+            List<AchxNodeViewModel> allNodes = [.. nodes.Flatten()];
+
+            return allNodes.FirstOrDefault(n => n switch
             {
-                yield return node;
+                AnimationViewModel chain => chain.Frames.Contains(node),
+                FrameViewModel frame => frame.Colliders.Contains(node),
+                _ => false
+            });
+        }
+
+        public static AnimationViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
+            AchxNodeViewModel node, bool includeSelf = true)
+        {
+            if (node is AnimationViewModel self && includeSelf)
+            {
+                return self;
             }
+
+            List<AchxNodeViewModel> allNodes = [.. nodes.Flatten()];
+
+            return allNodes.FindDirectParent(node) switch
+            {
+                AnimationViewModel animation => animation,
+                FrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationViewModel,
+                _ => null
+            };
         }
-    }
-
-    public static AchxNodeViewModel? FindDirectParent(this IEnumerable<AchxNodeViewModel> nodes, AchxNodeViewModel node)
-    {
-        List<AchxNodeViewModel> allNodes = [.. nodes.Flatten()];
-
-        return allNodes.FirstOrDefault(n => n switch
-        {
-            AnimationViewModel chain => chain.Frames.Contains(node),
-            FrameViewModel frame => frame.Colliders.Contains(node),
-            _ => false
-        });
-    }
-
-    public static AnimationViewModel? FindParentAnimation(this IEnumerable<AchxNodeViewModel> nodes,
-        AchxNodeViewModel node, bool includeSelf = true)
-    {
-        if (node is AnimationViewModel self && includeSelf)
-        {
-            return self;
-        }
-
-        List<AchxNodeViewModel> allNodes = [.. nodes.Flatten()];
-
-        return allNodes.FindDirectParent(node) switch
-        {
-            AnimationViewModel animation => animation,
-            FrameViewModel frame => allNodes.FindDirectParent(frame) as AnimationViewModel,
-            _ => null
-        };
     }
 }

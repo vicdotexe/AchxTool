@@ -16,6 +16,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using AchxTool.Services;
+using AchxTool.ViewModels.Animation;
 
 using Avalonia.Platform.Storage;
 

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 using AchxTool.Models;
-using AchxTool.ViewModels.Nodes;
+using AchxTool.ViewModels.Animation;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AchxTool.ViewModels;
+namespace AchxTool.ViewModels.Nodes;
 
 public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
 {

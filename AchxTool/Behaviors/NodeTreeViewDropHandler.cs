@@ -12,6 +12,8 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactions.DragAndDrop;
 
+using AchxNodeViewModel = AchxTool.ViewModels.Nodes.AchxNodeViewModel;
+
 namespace AchxTool.Behaviors;
 public class NodeTreeViewDropHandler : DropHandlerBase
 {

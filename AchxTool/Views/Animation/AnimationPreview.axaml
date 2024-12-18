@@ -1,4 +1,4 @@
-<UserControl x:Class="AchxTool.Views.AnimationPreview"
+<UserControl x:Class="AchxTool.Views.Animation.AnimationPreview"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
@@ -6,9 +6,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:AchxTool.ViewModels"
              xmlns:views="clr-namespace:AchxTool.Views"
+             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
+             xmlns:animation1="clr-namespace:AchxTool.Views.Animation"
              d:DesignHeight="450"
              d:DesignWidth="800"
-             x:DataType="viewModels:AnimationRunnerViewModel"
+             x:DataType="animation:AnimationRunnerViewModel"
              mc:Ignorable="d">
   <Grid RowDefinitions="Auto, *, Auto">
     <Grid Margin="2" ColumnDefinitions="Auto,*,Auto,Auto">
@@ -34,7 +36,7 @@
       </ToggleButton>
     </Grid>
     <Grid Grid.Row="1" Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}">
-      <views:PanningGrid IsVisible="{Binding #Guides.IsChecked}" Offset="{Binding #Sprite.RenderTransform}" />
+      <animation1:PanningGrid IsVisible="{Binding #Guides.IsChecked}" Offset="{Binding #Sprite.RenderTransform}" />
       <ZoomBorder x:Name="ZoomBorder"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
@@ -43,7 +45,7 @@
                   Stretch="None"
                   ZoomSpeed="1.2">
         <Canvas x:Name="Sprite">
-          <views:SpriteControl Width="{Binding CurrentFrame.Width}"
+          <animation1:SpriteControl Width="{Binding CurrentFrame.Width}"
                                Height="{Binding CurrentFrame.Height}"
                                FlipHorizontal="{Binding CurrentFrame.FlipHorizontal}"
                                FlipVertical="{Binding CurrentFrame.FlipVertical}"

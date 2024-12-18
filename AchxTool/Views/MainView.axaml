@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:achxTool="clr-namespace:AchxTool"
              xmlns:behaviors="clr-namespace:AchxTool.Behaviors"
-             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,6 +11,8 @@
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.Animation"
+             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="vm:MainViewModel"
@@ -81,7 +82,7 @@
 
         </Grid.Styles>
 
-        <achxTool:NodeTreeView Grid.Column="0" DataContext="{Binding NodeTreeViewModel}" />
+        <views:NodeTreeView Grid.Column="0" DataContext="{Binding NodeTreeViewModel}" />
 
         <GridSplitter Grid.Column="1" />
 
@@ -96,7 +97,7 @@
                                           SelectedItem="{Binding SelectedItem}">
             <canvasItems:FrameCarvingCanvas.Styles>
 
-              <Style x:DataType="vm:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
+              <Style x:DataType="animation:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
                 <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
                 <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />
                 <Setter Property="ZIndex" Value="{Binding Z}" />
@@ -121,13 +122,13 @@
 
             </canvasItems:FrameCarvingCanvas.Styles>
             <canvasItems:FrameCarvingCanvas.DataTemplates>
-              <DataTemplate DataType="{x:Type vm:FrameViewModel}">
+              <DataTemplate DataType="{x:Type nodes:FrameViewModel}">
                 <Rectangle HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
                            StrokeDashArray="4,2"
                            StrokeThickness="1" />
               </DataTemplate>
-              <DataTemplate DataType="{x:Type vm:CanvasTextureViewModel}">
+              <DataTemplate DataType="{x:Type animation:CanvasTextureViewModel}">
                 <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Image}" />
               </DataTemplate>
             </canvasItems:FrameCarvingCanvas.DataTemplates>
@@ -147,7 +148,7 @@
           <views:NodeInspectorControl DataContext="{Binding NodeTreeViewModel}" SelectedNode="{Binding SelectedNode}" />
           <GridSplitter Grid.Row="1" />
 
-          <views:AnimationPreview Grid.Row="2"
+          <canvasItems:AnimationPreview Grid.Row="2"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
                                   DataContext="{Binding AnimationRunner}" />

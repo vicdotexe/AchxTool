@@ -1,15 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-using AchxTool.Services;
 using AchxTool.ViewModels.Nodes;
-
-using Avalonia.Media.Imaging;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
-namespace AchxTool.ViewModels;
+namespace AchxTool.ViewModels.Animation;
 
 public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>,
     IRecipient<ActiveAnimationChangedMessage>
@@ -19,7 +16,6 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
     public CanvasTextureViewModel TextureViewModel { get; }
 
     [ObservableProperty] private ICanvasItem? _selectedItem;
-
     private AnimationViewModel? ActiveAnimation { get; set; }
 
     private IMessenger Messenger { get; }

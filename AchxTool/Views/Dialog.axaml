@@ -1,10 +1,11 @@
-<UserControl x:Class="AchxTool.Dialog"
+<UserControl x:Class="AchxTool.Views.Dialog"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:achxTool="clr-namespace:AchxTool"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:AchxTool.ViewModels"
+             xmlns:views="clr-namespace:AchxTool.Views"
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="viewModels:DialogViewModelBase"
@@ -14,7 +15,7 @@
   </Design.DataContext>
   <UserControl.Styles>
     <Style Selector="ContentPresenter#Actions">
-      <Setter Property="Content" Value="{Binding $parent[achxTool:Dialog].(achxTool:Dialog.Actions)}" />
+      <Setter Property="Content" Value="{Binding $parent[views:Dialog].(views:Dialog.Actions)}" />
     </Style>
     <Style Selector="ContentPresenter#Actions.noActions">
       <Setter Property="Content" Value="{Binding}" />
@@ -32,7 +33,7 @@
   </UserControl.Styles>
   <Border>
     <Grid RowDefinitions="Auto,*,Auto">
-      <TextBlock Grid.Row="0" Text="{Binding $parent[achxTool:Dialog].(achxTool:Dialog.Title)}" FontSize="18" />
+      <TextBlock Grid.Row="0" Text="{Binding $parent[views:Dialog].(views:Dialog.Title)}" FontSize="18" />
       <ContentControl x:Name="DialogContent"
                       Grid.Row="1"
                       Content="{Binding}" 
@@ -41,7 +42,7 @@
                         Grid.Row="2"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        Classes.noActions="{Binding !$parent[achxTool:Dialog].(achxTool:Dialog.Actions)}" />
+                        Classes.noActions="{Binding !$parent[views:Dialog].(views:Dialog.Actions)}" />
 
     </Grid>
   </Border>

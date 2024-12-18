@@ -4,7 +4,7 @@ using Avalonia.Media;
 using Avalonia;
 using Avalonia.VisualTree;
 
-namespace AchxTool.Views;
+namespace AchxTool.Views.Animation;
 
 public class PanningGrid : ContentControl
 {

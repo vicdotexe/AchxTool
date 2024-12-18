@@ -1,8 +1,10 @@
 ﻿using AchxTool.Services;
+
 using Avalonia.Media.Imaging;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AchxTool.ViewModels;
+namespace AchxTool.ViewModels.Animation;
 public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
 {
     [ObservableProperty]

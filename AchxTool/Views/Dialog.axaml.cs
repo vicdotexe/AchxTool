@@ -2,17 +2,10 @@ using AchxTool.ViewModels;
 
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
-using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.VisualTree;
 
-using Microsoft.Extensions.DependencyInjection;
-
-namespace AchxTool;
+namespace AchxTool.Views;
 
 public partial class Dialog : ContentControl
 {
@@ -39,8 +32,8 @@ public partial class Dialog : ContentControl
         base.OnLoaded(e);
         if (DialogContent.Presenter?.Child is {} dialogView)
         {
-            Bind(TitleProperty, dialogView.GetObservable(TitleProperty));
-            Bind(ActionsProperty, dialogView.GetObservable(ActionsProperty));
+            Bind(TitleProperty, AvaloniaObjectExtensions.GetObservable(dialogView, TitleProperty));
+            Bind(ActionsProperty, AvaloniaObjectExtensions.GetObservable(dialogView, ActionsProperty));
         }
     }
 }

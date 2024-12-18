@@ -6,6 +6,9 @@ using System.Globalization;
 using AchxTool.ViewModels;
 using AchxTool.ViewModels.Nodes;
 
+using AchxNodeViewModel = AchxTool.ViewModels.Nodes.AchxNodeViewModel;
+using FrameViewModel = AchxTool.ViewModels.Nodes.FrameViewModel;
+
 namespace AchxTool.Converters;
 public class NameOrIndexConverter : IMultiValueConverter
 {

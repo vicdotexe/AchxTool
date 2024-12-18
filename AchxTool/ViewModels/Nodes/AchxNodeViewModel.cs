@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AchxTool.ViewModels;
+namespace AchxTool.ViewModels.Nodes;
 
 public abstract partial class AchxNodeViewModel : ObservableObject
 {

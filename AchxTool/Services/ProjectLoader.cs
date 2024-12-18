@@ -5,6 +5,8 @@ using AchxTool.ViewModels.Nodes;
 
 using CommunityToolkit.Mvvm.Messaging;
 
+using FrameViewModel = AchxTool.ViewModels.Nodes.FrameViewModel;
+
 namespace AchxTool.Services
 {
     public interface IProjectLoader

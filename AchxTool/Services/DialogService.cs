@@ -1,4 +1,6 @@
 ﻿using AchxTool.ViewModels;
+using AchxTool.Views;
+
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 

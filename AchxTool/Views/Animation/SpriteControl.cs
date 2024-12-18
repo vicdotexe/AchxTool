@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
-namespace AchxTool.Views;
+namespace AchxTool.Views.Animation;
 public class SpriteControl : Control
 {
     public static readonly StyledProperty<Bitmap?> ImageProperty =
@@ -13,8 +13,8 @@ public class SpriteControl : Control
         AvaloniaProperty.Register<SpriteControl, int>(nameof(X));
 
     public static readonly StyledProperty<int> YProperty =
-        AvaloniaProperty.Register<SpriteControl, int>(nameof(Y));    
-    
+        AvaloniaProperty.Register<SpriteControl, int>(nameof(Y));
+
     public static readonly StyledProperty<bool> FlipHorizontalProperty =
         AvaloniaProperty.Register<SpriteControl, bool>(nameof(FlipHorizontal));
 

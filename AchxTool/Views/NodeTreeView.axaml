@@ -7,8 +7,8 @@
              xmlns:global="clr-namespace:"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="AchxTool.NodeTreeView"
-             x:DataType="global:NodeTreeViewModel">
+             x:Class="AchxTool.Views.NodeTreeView"
+             x:DataType="vm:NodeTreeViewModel">
     <UserControl.Resources>
         <converters:NameOrIndexConverter x:Key="NameOrIndexConverter"/>
     </UserControl.Resources>
@@ -41,7 +41,7 @@
             </TextBlock.ContextFlyout>
           </TextBlock>
         </TreeDataTemplate>
-        <TreeDataTemplate DataType="{x:Type vm:FrameViewModel}">
+        <TreeDataTemplate DataType="{x:Type nodes:FrameViewModel}">
           <TextBlock>
             <TextBlock.Text>
               <MultiBinding Converter="{StaticResource NameOrIndexConverter}" ConverterParameter="Frame">

@@ -2,7 +2,6 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:canvasItems="clr-namespace:AchxTool.Views.CanvasItems"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
              xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
@@ -10,6 +9,7 @@
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.Animation"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -56,7 +56,7 @@
                     <TextBox Grid.Column="1" Text="{Binding Name}" />
                   </Grid>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type vm:FrameViewModel}">
+                <DataTemplate DataType="{x:Type nodes:FrameViewModel}">
                   <Grid x:Name="MainGrid"
                         Margin="4"
                         ColumnDefinitions="Auto, *"

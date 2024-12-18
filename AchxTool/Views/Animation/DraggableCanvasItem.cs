@@ -1,14 +1,11 @@
-﻿using Avalonia.Controls.Metadata;
-using Avalonia.Controls.Presenters;
+﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.VisualTree;
-using Avalonia.Controls.PanAndZoom;
 
-namespace AchxTool.Views.CanvasItems;
+namespace AchxTool.Views.Animation;
 
 [PseudoClasses(":isSelected")]
 public class DraggableCanvasItem : ContentControl

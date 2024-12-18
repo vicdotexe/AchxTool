@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 
-namespace AchxTool.Views.CanvasItems;
+namespace AchxTool.Views.Animation;
 
 public class FrameCarvingCanvas : SelectingItemsControl
 {

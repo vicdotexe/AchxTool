@@ -14,16 +14,16 @@ namespace AchxTool.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    public CanvasViewModel CanvasViewModel { get; }
+    public Animation.CanvasViewModel CanvasViewModel { get; }
     public NodeTreeViewModel NodeTreeViewModel { get; }
-    public AnimationRunnerViewModel AnimationRunner { get; }
+    public Animation.AnimationRunnerViewModel AnimationRunner { get; }
     private IViewModelFactory Factory { get; }
     private IProjectLoader ProjectLoader { get; }
     private IDialogService DialogService { get; }
 
-    public MainViewModel(CanvasViewModel canvasViewModel, 
+    public MainViewModel(Animation.CanvasViewModel canvasViewModel, 
         IViewModelFactory factory,
-        AnimationRunnerViewModel animationRunner,
+        Animation.AnimationRunnerViewModel animationRunner,
         NodeTreeViewModel nodeTreeViewModel,
         IMessenger messenger,
         IProjectLoader projectLoader,

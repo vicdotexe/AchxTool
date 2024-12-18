@@ -1,18 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Diagnostics;
 
 using AchxTool.Services;
 using AchxTool.ViewModels.Nodes;
 
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
-namespace AchxTool.ViewModels;
+namespace AchxTool.ViewModels.Animation;
 
 public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>
 {
@@ -150,12 +148,12 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
 
         if (NodeTree.FindAnimation(message.Node) is { } animation)
         {
+            ActiveAnimation = animation;
+
             if (message.Node is FrameViewModel frame)
             {
                 CurrentIndex = animation.Frames.IndexOf(frame);
             }
-
-            ActiveAnimation = animation;
         }
     }
 }

@@ -1,10 +1,12 @@
-using AchxTool.ViewModels;
+using AchxTool.ViewModels.Animation;
+using AchxTool.ViewModels.Nodes;
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.PanAndZoom;
 using Avalonia.Input;
 
-namespace AchxTool.Views;
+namespace AchxTool.Views.Animation;
 
 public partial class AnimationPreview : UserControl
 {
@@ -22,14 +24,14 @@ public partial class AnimationPreview : UserControl
 
             vm.PropertyChanged += (o, args) =>
             {
-                if (args.PropertyName == nameof(vm.ActiveAnimation))
+                if (args.PropertyName == nameof(AnimationRunnerViewModel.ActiveAnimation))
                 {
                     Size[] sizes =
                         [.. vm.ActiveAnimation?.Frames.Select(f => new Size(f.Width, f.Height)) ?? [new(64, 64)]];
 
-                    Matrix containmentMatrix = CreateZoomAndContain(ZoomBorder.Bounds.Size, sizes);
+                    Matrix containmentMatrix = CreateZoomAndContain(this.ZoomBorder.Bounds.Size, sizes);
 
-                    ZoomBorder.SetMatrix(containmentMatrix);
+                    this.ZoomBorder.SetMatrix(containmentMatrix);
                 }
             };
         }

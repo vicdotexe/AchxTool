@@ -1,4 +1,4 @@
-﻿namespace AchxTool.ViewModels;
+﻿namespace AchxTool.ViewModels.Animation;
 
 public interface ICanvasItem
 {
