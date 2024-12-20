@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<NodeTreeViewModel>();
 
         // services
-        services.AddSingleton<IBitmapBank, BitmapBank>();
+        services.AddSingleton<ITextureProvider, TextureProvider>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<NodeTreeViewModel>());

@@ -1,74 +1,120 @@
-﻿using AchxTool.ViewModels;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
+
+using AchxTool.ViewModels;
 
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 
 using CommunityToolkit.Mvvm.Messaging;
 
+using Mono.Collections.Generic;
+
 namespace AchxTool.Services;
 
-public interface IBitmapBank
+public interface ITextureProvider
 {
-    Bitmap Get(string filePath);
+    Bitmap? Get(FileInfo? fileInfo);
 }
 
-public class BitmapBank : IBitmapBank, IRecipient<ProjectLoadedMessage>
+public class TextureProvider : ITextureProvider, IRecipient<ProjectLoadedMessage>
 {
-    private Dictionary<string, Bitmap> Bitmaps { get; } = [];
-    private DirectoryInfo? ParentDirectory { get; set; }
+    private Dictionary<FileInfo, Bitmap> Textures { get; } = new(new FileInfoComparer());
 
-    public BitmapBank(IMessenger messenger)
+    public TextureProvider(IMessenger messenger)
     {
         messenger.RegisterAll(this);
     }
 
-    public Bitmap Get(string filePath)
+    public Bitmap? Get(FileInfo? fileInfo)
     {
-        if (Bitmaps.TryGetValue(filePath, out var bitmap))
+        if (fileInfo is null)
+        {
+            return null;
+        }
+
+        if (Textures.TryGetValue(fileInfo, out var bitmap))
         {
             return bitmap;
         }
 
         try
         {
-            string actualPath = Path.Combine(ParentDirectory?.FullName ?? "", filePath);
-            bitmap = new Bitmap(actualPath);
-            Bitmaps[filePath] = bitmap;
+            bitmap = new Bitmap(fileInfo.FullName);
+            Textures[fileInfo] = bitmap;
             return bitmap;
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Failed to load bitmap from {fileInfo.FullName}: {e.Message}");
+
             try
             {
-                bitmap = new Bitmap(AssetLoader.Open(new Uri($"avares://AchxTool/Assets/{filePath}")));
-                Bitmaps[filePath] = bitmap;
+                string currentDirectory = Directory.GetCurrentDirectory();
+                string relativeAssetPath = Path.GetRelativePath(currentDirectory, fileInfo.FullName);
+
+                bitmap = new Bitmap(AssetLoader.Open(new Uri($"avares://AchxTool/Assets/{relativeAssetPath}")));
+                Textures[fileInfo] = bitmap;
                 return bitmap;
             }
             catch (Exception e2)
             {
-                Console.WriteLine($"Failed to load bitmap from {filePath}: {e2.Message}");
-                return null;
+                Console.WriteLine($"Could not find avalonia asset {fileInfo}: {e2.Message}");
             }
-
-            Console.WriteLine($"Failed to load bitmap from {filePath}: {e.Message}");
-            return null;
         }
+
+        return null;
     }
 
     void IRecipient<ProjectLoadedMessage>.Receive(ProjectLoadedMessage message)
     {
-        ParentDirectory = new FileInfo(message.Project.FilePath!).Directory;
+        Textures.Clear();
 
         foreach (var animation in message.Project.Animations)
         {
             foreach (var frame in animation.Frames)
             {
-                if (frame.TextureName is { } path)
+                if (frame.TextureFile is { } fileInfo)
                 {
-                    _ = Get(path);
+                    _ = Get(fileInfo);
                 }
 
             }
         }
+    }
+
+    public class FileInfoComparer : IEqualityComparer<FileInfo>
+    {
+        public bool Equals(FileInfo? x, FileInfo? y)
+        {
+            // Handle nulls
+            if (ReferenceEquals(x, y)) return true;
+            if (x is null || y is null) return false;
+
+            // Compare full paths
+            return string.Equals(x.FullName, y.FullName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int GetHashCode(FileInfo? obj)
+        {
+            // Use FullName for hash code generation (case-insensitive)
+            return obj?.FullName?.ToLowerInvariant().GetHashCode() ?? 0;
+        }
+    }
+
+}
+
+public static class FileInfoExtensions
+{
+    public static bool Matches(this FileInfo? self, FileInfo? other)
+    {
+        if (self is null || other is null)
+        {
+            return false;
+        }
+
+        return string.Equals(self.FullName, other.FullName, StringComparison.OrdinalIgnoreCase);
     }
 }

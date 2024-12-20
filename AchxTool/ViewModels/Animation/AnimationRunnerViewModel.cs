@@ -32,19 +32,19 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
 
     public int TotalFrames => ActiveAnimation?.Frames.Count ?? 0;
 
-    public Bitmap? Image => CurrentFrame?.TextureName is not null ? BitmapBank.Get(CurrentFrame.TextureName) : null;
+    public Bitmap? Image => TextureProvider.Get(CurrentFrame?.TextureFile);
 
     private Stopwatch StopWatch { get; } = new();
 
     private double _lastElapsed;
     private double _elapsedSinceFrameStart;
 
-    private IBitmapBank BitmapBank { get; }
+    private ITextureProvider TextureProvider { get; }
     private INodeTree NodeTree { get; }
 
-    public AnimationRunnerViewModel(IBitmapBank bitmapBank, IMessenger messenger, INodeTree nodeTree)
+    public AnimationRunnerViewModel(ITextureProvider textureProvider, IMessenger messenger, INodeTree nodeTree)
     {
-        BitmapBank = bitmapBank;
+        TextureProvider = textureProvider;
         NodeTree = nodeTree;
 
         DispatcherTimer timer = new()
@@ -57,7 +57,6 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
 
         messenger.RegisterAll(this);
     }
-
 
     private void TimerOnTick(object? sender, EventArgs e)
     {

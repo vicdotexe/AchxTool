@@ -51,7 +51,7 @@ public partial class MainViewModel : ObservableObject
         {
             x.Width = frameWidth;
             x.Height = frameHeight;
-            x.TextureName = "test-spritesheet.png";
+            x.TextureFile = new("test-spritesheet.png");
             x.FrameLength = 0.15;
         });
 

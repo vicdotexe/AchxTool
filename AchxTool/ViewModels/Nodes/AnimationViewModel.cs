@@ -26,7 +26,7 @@ public class AnimationViewModel : AchxNodeViewModel
             frame.Width = lastFrame.Width;
             frame.Height = lastFrame.Height;
             frame.FrameLength = lastFrame.FrameLength;
-            frame.TextureName = lastFrame.TextureName;
+            frame.TextureFile = lastFrame.TextureFile;
         }
 
         Frames.Add(frame);

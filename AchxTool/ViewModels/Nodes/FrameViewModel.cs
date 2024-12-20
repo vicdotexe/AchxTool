@@ -17,8 +17,8 @@ public partial class FrameViewModel : AchxNodeViewModel, ICanvasItem
     [ObservableProperty]
     private double _frameLength;
 
-    [ObservableProperty]
-    private string? _textureName;
+    [ObservableProperty] 
+    private FileInfo? _textureFile;
 
     [ObservableProperty]
     private double _x;

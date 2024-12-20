@@ -68,6 +68,8 @@ public class ProjectLoader : IProjectLoader
 
     private async Task<ProjectViewModel?> LoadLegacyXml(FileInfo fileInfo)
     {
+        DirectoryInfo parentDirectory = fileInfo.Directory ?? new DirectoryInfo(".");
+
         await using FileStream fileStream = fileInfo.OpenRead();
         using StreamReader streamReader = new(fileStream);
 
@@ -96,7 +98,7 @@ public class ProjectLoader : IProjectLoader
                 {
                     FrameViewModel frameViewModel = Factory.New<FrameViewModel>(f =>
                     {
-                        f.TextureName = frame.TextureName;
+                        f.TextureFile = new FileInfo(Path.Combine(parentDirectory.FullName, frame.TextureName));
                         f.FrameLength = frame.FrameLength;
                         f.X = frame.LeftCoordinate;
                         f.Y = frame.TopCoordinate;

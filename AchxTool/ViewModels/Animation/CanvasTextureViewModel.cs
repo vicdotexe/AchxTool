@@ -24,20 +24,20 @@ public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Image))]
-    private string? _imageSource;
+    private FileInfo? _imageSource;
 
-    public Bitmap? Image => ImageSource is not null ? BitmapBank.Get(ImageSource) : null;
+    public Bitmap? Image => TextureProvider.Get(ImageSource);
 
     public bool IsDragEnabled { get; set; } = false;
     public bool IsResizeEnabled { get; set; } = false;
 
     public bool IsSelectionEnabled { get; set; } = false;
 
-    private IBitmapBank BitmapBank { get; }
+    private ITextureProvider TextureProvider { get; }
 
-    public CanvasTextureViewModel(IBitmapBank bitmapBank)
+    public CanvasTextureViewModel(ITextureProvider textureProvider)
     {
-        BitmapBank = bitmapBank;
+        TextureProvider = textureProvider;
 
         PropertyChanged += (_, e) =>
         {

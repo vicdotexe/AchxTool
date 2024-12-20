@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
+using AchxTool.Services;
 using AchxTool.ViewModels.Nodes;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -49,9 +50,9 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 
     partial void OnSelectedItemChanged(ICanvasItem? value)
     {
-        if (value is FrameViewModel frame && TextureViewModel.ImageSource != frame.TextureName)
+        if (value is FrameViewModel frame && !TextureViewModel.ImageSource.Matches(frame.TextureFile))
         {
-            TextureViewModel.ImageSource = frame.TextureName;
+            TextureViewModel.ImageSource = frame.TextureFile;
         }
 
         foreach (var item in Items.Where(x => x is AchxNodeViewModel))
@@ -93,7 +94,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
             newValue.Frames.CollectionChanged += Animation_FramesChanged;
         }
 
-        TextureViewModel.ImageSource = newValue?.Frames.FirstOrDefault()?.TextureName;
+        TextureViewModel.ImageSource = newValue?.Frames.FirstOrDefault()?.TextureFile;
 
         void Animation_FramesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
