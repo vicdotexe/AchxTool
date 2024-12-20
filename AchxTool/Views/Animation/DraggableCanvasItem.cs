@@ -56,6 +56,7 @@ public class DraggableCanvasItem : ContentControl
 
     public DraggableCanvasItem()
     {
+        this.Focusable = true;
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -69,9 +70,38 @@ public class DraggableCanvasItem : ContentControl
 
             _isDragging = IsDragEnabled;
             _pressedOffset = e.GetPosition(this);
+            Focus(NavigationMethod.Pointer);
             e.Handled = true;
         }
         base.OnPointerPressed(e);
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (_isDragging)
+        {
+            return;
+        }
+        var x = Canvas.GetLeft(this);
+        var y = Canvas.GetTop(this);
+
+        double xx = e.Key switch
+        {
+            Key.Left => -1,
+            Key.Right => 1,
+            _ => 0
+        };
+
+        double yy = e.Key switch
+        {
+            Key.Up => -1,
+            Key.Down => 1,
+            _ => 0
+        };
+
+        this.SetCurrentValue(Canvas.LeftProperty, x + xx);
+        this.SetCurrentValue(Canvas.TopProperty, y + yy);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
