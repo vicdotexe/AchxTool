@@ -17,14 +17,12 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalFrames))]
     [NotifyPropertyChangedFor(nameof(CurrentFrame))]
-    [NotifyPropertyChangedFor(nameof(Image))]
     private AnimationViewModel? _activeAnimation;
 
     public FrameViewModel? CurrentFrame => ActiveAnimation?.Frames.ElementAtOrDefault(CurrentIndex);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentFrame))]
-    [NotifyPropertyChangedFor(nameof(Image))]
     private int _currentIndex;
 
     [ObservableProperty]
@@ -32,19 +30,15 @@ public partial class AnimationRunnerViewModel : ObservableObject, IRecipient<Tre
 
     public int TotalFrames => ActiveAnimation?.Frames.Count ?? 0;
 
-    public Bitmap? Image => TextureProvider.Get(CurrentFrame?.TextureFile);
-
     private Stopwatch StopWatch { get; } = new();
 
     private double _lastElapsed;
     private double _elapsedSinceFrameStart;
 
-    private ITextureProvider TextureProvider { get; }
     private INodeTree NodeTree { get; }
 
-    public AnimationRunnerViewModel(ITextureProvider textureProvider, IMessenger messenger, INodeTree nodeTree)
+    public AnimationRunnerViewModel(IMessenger messenger, INodeTree nodeTree)
     {
-        TextureProvider = textureProvider;
         NodeTree = nodeTree;
 
         DispatcherTimer timer = new()

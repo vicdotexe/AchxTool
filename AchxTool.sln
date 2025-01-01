@@ -13,16 +13,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AchxTool.iOS", "AchxTool.iO
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AchxTool.Browser", "AchxTool.Browser\AchxTool.Browser.csproj", "{76A3BFA3-4B1E-46B5-8BAA-BA558B258EAD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2805EDF0-22F4-4F54-BE47-1212AB3BC273}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{2BBBD984-821E-4F1E-9051-FEAA61E45588}"
 	ProjectSection(SolutionItems) = preProject
-		AchxTool\.editorconfig = AchxTool\.editorconfig
-		AchxTool\.gitignore = AchxTool\.gitignore
-		AchxTool\Directory.Build.props = AchxTool\Directory.Build.props
-		AchxTool\Directory.Build.targets = AchxTool\Directory.Build.targets
-		AchxTool\Directory.Packages.props = AchxTool\Directory.Packages.props
-		AchxTool\exclusions.dic = AchxTool\exclusions.dic
-		AchxTool\NuGet.config = AchxTool\NuGet.config
-		AchxTool\Settings.XamlStyler = AchxTool\Settings.XamlStyler
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		Directory.Packages.props = Directory.Packages.props
+		exclusions.dic = exclusions.dic
+		NuGet.config = NuGet.config
+		Settings.XamlStyler = Settings.XamlStyler
 	EndProjectSection
 EndProject
 Global

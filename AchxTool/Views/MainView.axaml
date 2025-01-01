@@ -2,17 +2,19 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:achxTool="clr-namespace:AchxTool"
+             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
              xmlns:behaviors="clr-namespace:AchxTool.Behaviors"
+             xmlns:canvasItems="clr-namespace:AchxTool.Views.Animation"
+             xmlns:collections="clr-namespace:Avalonia.Collections;assembly=Avalonia.Base"
              xmlns:converters="clr-namespace:AchxTool.Converters"
              xmlns:converters1="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:nodes="clr-namespace:AchxTool.ViewModels.Nodes"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:views="clr-namespace:AchxTool.Views"
              xmlns:vm="clr-namespace:AchxTool.ViewModels"
-             xmlns:canvasItems="clr-namespace:AchxTool.Views.Animation"
-             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="vm:MainViewModel"
@@ -94,8 +96,15 @@
                                           Background="{Binding #BackgroundColorPicker.Color, Converter={StaticResource ColorToBrushConverter}}"
                                           DataContext="{Binding CanvasViewModel}"
                                           ItemsSource="{Binding Items}"
-                                          SelectedItem="{Binding SelectedItem}">
+                                          SelectedItem="{Binding SelectedItem}"
+                                          UseLayoutRounding="False">
+            <canvasItems:FrameCarvingCanvas.Resources>
+              <collections:AvaloniaList x:Key="DashArray" x:TypeArguments="x:Double">
+                4,2
+              </collections:AvaloniaList>
+            </canvasItems:FrameCarvingCanvas.Resources>
             <canvasItems:FrameCarvingCanvas.Styles>
+
 
               <Style x:DataType="animation:ICanvasItem" Selector="canvasItems|DraggableCanvasItem">
                 <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
@@ -125,18 +134,18 @@
               <DataTemplate DataType="{x:Type nodes:FrameViewModel}">
                 <Rectangle HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
-                           StrokeDashArray="4,2"
+                           StrokeDashArray="4"
                            StrokeThickness="1" />
               </DataTemplate>
               <DataTemplate DataType="{x:Type animation:CanvasTextureViewModel}">
-                <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Image}" />
+                <Image RenderOptions.BitmapInterpolationMode="None" Source="{Binding Bitmap}" />
               </DataTemplate>
             </canvasItems:FrameCarvingCanvas.DataTemplates>
           </canvasItems:FrameCarvingCanvas>
         </Grid>
 
         <GridSplitter Grid.Column="3" />
-        <Grid Grid.Column="4" RowDefinitions="2*,Auto,*">
+        <Grid Grid.Column="4" RowDefinitions="2*,Auto,*,Auto,*">
           <Grid.Styles>
             <Styles>
               <Style Selector="GridSplitter">
@@ -145,13 +154,15 @@
               </Style>
             </Styles>
           </Grid.Styles>
-          <views:NodeInspectorControl DataContext="{Binding NodeTreeViewModel}" SelectedNode="{Binding SelectedNode}" />
+          <achxTool:NodeInspector DataContext="{Binding NodeInspectorViewModel}" />
           <GridSplitter Grid.Row="1" />
 
           <canvasItems:AnimationPreview Grid.Row="2"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  DataContext="{Binding AnimationRunner}" />
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        DataContext="{Binding AnimationRunner}" />
+          <GridSplitter Grid.Row="3" />
+          <achxTool:TextureManagerView Grid.Row="4" DataContext="{Binding TextureManagerViewModel}" />
 
 
         </Grid>

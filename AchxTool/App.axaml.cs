@@ -33,6 +33,8 @@ public partial class App : Application
         // Creates a ServiceProvider containing services from the provided IServiceCollection
         _serviceProvider = services.BuildServiceProvider();
 
+        Locator.Register(_serviceProvider);
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = _serviceProvider.GetRequiredService<MainWindow>();

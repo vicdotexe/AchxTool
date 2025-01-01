@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<NodeTreeViewModel>();
 
         // services
-        services.AddSingleton<ITextureProvider, TextureProvider>();
+        services.AddSingleton<ITextureManager, TextureManager>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<INodeTree>(sp => sp.GetRequiredService<NodeTreeViewModel>());
@@ -57,7 +57,7 @@ public static class ServiceCollectionExtensions
             static (isp, t) => isp.AddTransient(t));
         services.AddLooseFactories(typeof(ServiceCollectionExtensions).Assembly);
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-
+        
         return services;
     }
 
@@ -189,4 +189,22 @@ file static class Helpers
         services.AddSingleton(sp => new Lazy<TService>(() => sp.GetRequiredService<TService>()));
         return services;
     }
+}
+
+
+public static class Locator
+{
+    private static IServiceProvider? _serviceProvider;
+
+
+    public static T GetRequired<T>() where T : notnull
+    {
+        return _serviceProvider!.GetRequiredService<T>();
+    }
+
+    public static void Register(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
 }

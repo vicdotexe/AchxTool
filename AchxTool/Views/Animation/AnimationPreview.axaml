@@ -1,13 +1,13 @@
 <UserControl x:Class="AchxTool.Views.Animation.AnimationPreview"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
+             xmlns:animation1="clr-namespace:AchxTool.Views.Animation"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:AchxTool.ViewModels"
              xmlns:views="clr-namespace:AchxTool.Views"
-             xmlns:animation="clr-namespace:AchxTool.ViewModels.Animation"
-             xmlns:animation1="clr-namespace:AchxTool.Views.Animation"
              d:DesignHeight="450"
              d:DesignWidth="800"
              x:DataType="animation:AnimationRunnerViewModel"
@@ -45,13 +45,14 @@
                   Stretch="None"
                   ZoomSpeed="1.2">
         <Canvas x:Name="Sprite">
-          <animation1:SpriteControl Width="{Binding CurrentFrame.Width}"
-                               Height="{Binding CurrentFrame.Height}"
-                               FlipHorizontal="{Binding CurrentFrame.FlipHorizontal}"
-                               FlipVertical="{Binding CurrentFrame.FlipVertical}"
-                               Image="{Binding Image}"
-                               X="{Binding CurrentFrame.X}"
-                               Y="{Binding CurrentFrame.Y}" />
+          <animation1:SpriteControl Width="{Binding Width}"
+                                    Height="{Binding Height}"
+                                    DataContext="{Binding CurrentFrame}"
+                                    FlipHorizontal="{Binding FlipHorizontal}"
+                                    FlipVertical="{Binding FlipVertical}"
+                                    Image="{Binding Texture.Bitmap}"
+                                    X="{Binding X}"
+                                    Y="{Binding Y}" />
         </Canvas>
 
       </ZoomBorder>

@@ -4,18 +4,25 @@ using AchxTool.Services;
 using AchxTool.ViewModels.Nodes;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels;
 
-public partial class NodeInspectorViewModel : ObservableObject
+public partial class NodeInspectorViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>
 {
     [ObservableProperty] 
-    public AchxNodeViewModel? _selectedNode;
+    private AchxNodeViewModel? _selectedNode;
 
-    private ITextureProvider TextureProvider { get; }
+    public ITextureManager TextureManager { get; }
 
-    public NodeInspectorViewModel(ITextureProvider textureProvider)
+    public NodeInspectorViewModel(ITextureManager textureManager, IMessenger messenger)
     {
-        TextureProvider = textureProvider;
+        TextureManager = textureManager;
+        messenger.RegisterAll(this);
+    }
+
+    void IRecipient<TreeNodeSelectedMessage>.Receive(TreeNodeSelectedMessage message)
+    {
+        SelectedNode = message.Node;
     }
 }

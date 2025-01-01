@@ -22,30 +22,17 @@ public partial class CanvasTextureViewModel : ObservableObject, ICanvasItem
     [ObservableProperty]
     private double _height;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Image))]
-    private FileInfo? _imageSource;
-
-    public Bitmap? Image => TextureProvider.Get(ImageSource);
+    [ObservableProperty] 
+    private Bitmap? _bitmap;
 
     public bool IsDragEnabled { get; set; } = false;
     public bool IsResizeEnabled { get; set; } = false;
 
     public bool IsSelectionEnabled { get; set; } = false;
 
-    private ITextureProvider TextureProvider { get; }
-
-    public CanvasTextureViewModel(ITextureProvider textureProvider)
+    partial void OnBitmapChanged(Bitmap? value)
     {
-        TextureProvider = textureProvider;
-
-        PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(Image))
-            {
-                Width = Image?.Size.Width ?? 0;
-                Height = Image?.Size.Height ?? 0;
-            }
-        };
+        Width = value?.Size.Width ?? 0;
+        Height = value?.Size.Height ?? 0;
     }
 }

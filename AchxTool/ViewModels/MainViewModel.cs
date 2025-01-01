@@ -10,7 +10,9 @@ public partial class MainViewModel : ObservableObject
 {
     public CanvasViewModel CanvasViewModel { get; }
     public NodeTreeViewModel NodeTreeViewModel { get; }
+    public NodeInspectorViewModel NodeInspectorViewModel { get; }
     public AnimationRunnerViewModel AnimationRunner { get; }
+    public TextureManagerViewModel TextureManagerViewModel { get; }
     private IViewModelFactory Factory { get; }
     private IProjectLoader ProjectLoader { get; }
     private IDialogService DialogService { get; }
@@ -19,18 +21,30 @@ public partial class MainViewModel : ObservableObject
         IViewModelFactory factory,
         AnimationRunnerViewModel animationRunner,
         NodeTreeViewModel nodeTreeViewModel,
+        TextureManagerViewModel textureManagerViewModel,
+        NodeInspectorViewModel nodeInspectorViewModel,
         IProjectLoader projectLoader,
-        IDialogService dialogService)
+        IDialogService dialogService,
+        ITextureManager textureManager)
     {
         CanvasViewModel = canvasViewModel;
         NodeTreeViewModel = nodeTreeViewModel;
         AnimationRunner = animationRunner;
+        NodeInspectorViewModel = nodeInspectorViewModel;
+        TextureManagerViewModel = textureManagerViewModel;
         Factory = factory;
         ProjectLoader = projectLoader;
         DialogService = dialogService;
 
         foreach (AnimationViewModel animation in MockData())
         {
+            foreach (FileInfo? textureFile in animation.Frames.Select(x => x.TextureFile))
+            {
+                if (textureFile is not null)
+                {
+                    textureManager.Load(textureFile);
+                }
+            }
             NodeTreeViewModel.AddAnimation(animation);
         }
     }

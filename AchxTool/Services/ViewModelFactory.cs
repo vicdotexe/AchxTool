@@ -7,6 +7,7 @@ namespace AchxTool.Services;
 public interface IViewModelFactory
 {
     T New<T>(Action<T>? setup = null) where T : ObservableObject;
+
     Func<T> NewFactory<T>(Action<T>? setup = null) where T : ObservableObject;
 }
 

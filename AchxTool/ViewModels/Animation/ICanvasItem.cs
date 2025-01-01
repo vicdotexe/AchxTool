@@ -11,3 +11,8 @@ public interface ICanvasItem
     bool IsDragEnabled { get; set; }
     bool IsResizeEnabled { get; set; }
 }
+
+public interface IHaveTexture
+{
+    TextureViewModel? Texture { get; }
+}

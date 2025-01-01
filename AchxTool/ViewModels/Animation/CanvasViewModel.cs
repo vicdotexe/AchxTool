@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace AchxTool.ViewModels.Animation;
 
-public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>
+public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSelectedMessage>, IRecipient<NodeTextureChangedMessage>
 {
     public ObservableCollection<ICanvasItem> Items { get; } = [];
 
@@ -38,7 +38,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 
     public CanvasViewModel(Func<CanvasTextureViewModel> textureVmFactory, IMessenger messenger, INodeTree nodeTree)
     {
-        var textureVm = textureVmFactory();
+        CanvasTextureViewModel textureVm = textureVmFactory();
         textureVm.Z = -1;
         TextureViewModel = textureVm;
         NodeTree = nodeTree;
@@ -50,9 +50,9 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
 
     partial void OnSelectedItemChanged(ICanvasItem? value)
     {
-        if (value is FrameViewModel frame && !TextureViewModel.ImageSource.Matches(frame.TextureFile))
+        if (value is IHaveTexture hasTexture)
         {
-            TextureViewModel.ImageSource = frame.TextureFile;
+            TextureViewModel.Bitmap = hasTexture.Texture?.Bitmap;
         }
 
         foreach (var item in Items.Where(x => x is AchxNodeViewModel))
@@ -72,6 +72,14 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
         };
 
         SelectedItem = message.Node as ICanvasItem;
+    }
+
+    void IRecipient<NodeTextureChangedMessage>.Receive(NodeTextureChangedMessage message)
+    {
+        if (message.Node == SelectedItem && message.Node is IHaveTexture hasTexture)
+        {
+            TextureViewModel.Bitmap = hasTexture.Texture?.Bitmap;
+        }
     }
 
     private void OnActiveAnimationChanging(AnimationViewModel? oldValue, AnimationViewModel? newValue)
@@ -94,7 +102,7 @@ public partial class CanvasViewModel : ObservableObject, IRecipient<TreeNodeSele
             newValue.Frames.CollectionChanged += Animation_FramesChanged;
         }
 
-        TextureViewModel.ImageSource = newValue?.Frames.FirstOrDefault()?.TextureFile;
+        TextureViewModel.Bitmap = newValue?.Frames.FirstOrDefault()?.Texture?.Bitmap ?? newValue?.Texture?.Bitmap;
 
         void Animation_FramesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {

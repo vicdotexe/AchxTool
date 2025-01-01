@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:AchxTool.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AchxTool.TextureManagerView"
+             x:DataType="viewModels:TextureManagerViewModel">
+    <Design.DataContext>
+        <viewModels:TextureManagerViewModel/>
+    </Design.DataContext>
+    <Grid RowDefinitions="*, Auto">
+    <ListBox ItemsSource="{Binding TextureManager}">
+      <ListBox.ItemTemplate>
+        <DataTemplate DataType="viewModels:TextureViewModel">
+          <StackPanel Orientation="Horizontal">
+            <Image Source="{Binding Bitmap}" Width="64" Height="64"/>
+            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+          </StackPanel>
+        </DataTemplate>
+          </ListBox.ItemTemplate>
+    </ListBox>
+        <Button Grid.Row="1" Content="Add" Command="{Binding PromptNewTexturesCommand}"></Button>
+</Grid>
+</UserControl>
